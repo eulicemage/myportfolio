@@ -26,6 +26,14 @@ export default function Portfolio() {
   const [cursorVisible, setCursorVisible] = useState(true);
   const [isVisible, setIsVisible] = useState({});
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    message: ''
+  });
+  const [formErrors, setFormErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState('');
 
   const roles = [
     'Software Developer',
@@ -175,16 +183,15 @@ export default function Portfolio() {
       highlights: ['Real-time Data Processing', 'Scalable Architecture', 'User Authentication']
     },
     {
-      title: 'E-Commerce Web Application',
-      description:
-        'Modern full-stack e-commerce platform with React frontend and Laravel backend. Features secure payment processing, inventory management, and responsive design. Showcases ability to build complete end-to-end solutions.',
-      tech: ['React', 'Laravel', 'MySQL', 'Stripe API', 'Tailwind CSS', 'Redux'],
-      image: 'https://images.unsplash.com/photo-1460925895917-adf4e565db18?w=1200&q=80&auto=format&fit=crop',
-      results: ['100+ Orders', 'Mobile Ready', 'Secure Payments'],
-      live: 'https://github.com/eulicemage',
-      github: 'https://github.com/eulicemage',
+      title: 'Rockies Fitness',
+      description:'Modern fitness gym website built with a responsive frontend and clean UI. Features a motivational landing page, user authentication entry point, and a strong brand-focused design to showcase gym services, trainers, and facilities.',
+      tech: ['AJAX', 'Tailwind CSS', 'Laravel', 'MySQL'],
+      image: '/images/photo.png',
+      results: ['Responsive Design', 'Modern UI', 'Brand-Focused Layout'],
+      live: 'https://www.rockiesfitnessph.com/', 
+      github: 'https://github.com/jimdmnc/FitTrack',
       color: 'from-orange-500 to-red-600',
-      highlights: ['Payment Integration', 'State Management', 'Responsive UI']
+      highlights: ['Hero Landing Page','Fitness Branding','Responsive Layout']
     },
     {
       title: 'Parent-Teacher Communication Portal',
@@ -202,25 +209,24 @@ export default function Portfolio() {
 
   const skills = {
     'Frontend Development': [
-      { name: 'React & Hooks', level: 92 },
-      { name: 'JavaScript (ES6+)', level: 90 },
-      { name: 'HTML5 & CSS3', level: 95 },
-      { name: 'Tailwind CSS', level: 88 },
-      { name: 'Responsive Design', level: 94 },
+      { name: 'React', level: 50 },
+      { name: 'JavaScript (ES6+)', level: 70 },
+      { name: 'HTML5 & CSS3', level: 89 },
+      { name: 'Tailwind CSS', level: 75 },
+      { name: 'Responsive Design', level: 85 },
     ],
     'Backend Development': [
-      { name: 'PHP (Laravel/CodeIgniter)', level: 90 },
-      { name: 'MySQL & Database Design', level: 87 },
-      { name: 'RESTful APIs', level: 88 },
-      { name: 'Authentication & Security', level: 85 },
-      { name: 'Server Management', level: 80 },
+      { name: 'PHP (Laravel/CodeIgniter)', level: 83 },
+      { name: 'MySQL & Database Design', level: 85 },
+      { name: 'RESTful APIs', level: 70 },
+      { name: 'Authentication & Security', level: 79 },
     ],
     'Tools & Technologies': [
-      { name: 'Git & GitHub', level: 88 },
-      { name: 'Figma & UI Design', level: 82 },
-      { name: 'Vite & Build Tools', level: 85 },
+      { name: 'Git & GitHub', level: 90 },
+      { name: 'Figma & UI Design', level: 87 },
+      { name: 'Vite & Build Tools', level: 78 },
       { name: 'Problem Solving', level: 90 },
-      { name: 'Team Collaboration', level: 88 },
+      { name: 'Team Collaboration', level: 97 },
     ],
   };
 
@@ -231,11 +237,69 @@ export default function Portfolio() {
     { icon: TrendingUp, number: '3+', label: 'Years Experience', color: 'text-orange-400' },
   ];
 
-  // prevent full-page reload on form submit
-  const handleFormSubmit = (e) => {
+  // Form validation
+  const validateForm = () => {
+    const errors = {};
+    
+    if (!formData.name.trim()) {
+      errors.name = 'Name is required';
+    }
+    
+    if (!formData.email.trim()) {
+      errors.email = 'Email is required';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      errors.email = 'Please enter a valid email';
+    }
+    
+    if (!formData.message.trim()) {
+      errors.message = 'Message is required';
+    } else if (formData.message.trim().length < 10) {
+      errors.message = 'Message must be at least 10 characters';
+    }
+    
+    return errors;
+  };
+
+  // Handle input changes
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+    // Clear error for this field when user starts typing
+    if (formErrors[name]) {
+      setFormErrors(prev => ({ ...prev, [name]: '' }));
+    }
+  };
+
+  // Functional form submission
+  const handleFormSubmit = async (e) => {
     e.preventDefault();
-    // placeholder action
-    alert('Form submission handled (placeholder).');
+    
+    const errors = validateForm();
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
+      return;
+    }
+    
+    setIsSubmitting(true);
+    setSubmitStatus('');
+    
+    try {
+      // Simulate sending message (replace with actual API call)
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // Success feedback
+      setSubmitStatus('success');
+      setFormData({ name: '', email: '', message: '' });
+      
+      // Clear success message after 5 seconds
+      setTimeout(() => setSubmitStatus(''), 5000);
+      
+    } catch (error) {
+      setSubmitStatus('error');
+      setTimeout(() => setSubmitStatus(''), 5000);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -381,7 +445,7 @@ export default function Portfolio() {
               <div className="space-y-4">
                 <div className="p-6 rounded-2xl bg-gradient-to-br from-slate-900/50 to-slate-950/50 border border-slate-800 hover:border-cyan-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/20 animate-slide-in-right hover:scale-105">
                   <h3 className="text-xl font-bold text-cyan-400 mb-3">🎓 Education</h3>
-                  <p className="text-slate-300">Bachelor of Science in IT</p>
+                  <p className="text-slate-300">Bachelor of Science in Information Technology - System Development</p>
                   <p className="text-sm text-slate-400">Strong foundation in CS principles</p>
                 </div>
                 <div className="p-6 rounded-2xl bg-gradient-to-br from-slate-900/50 to-slate-950/50 border border-slate-800 hover:border-cyan-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/20 animate-slide-in-right" style={{ animationDelay: '0.1s' }}>
@@ -573,7 +637,7 @@ export default function Portfolio() {
                     </div>
                     <div>
                       <p className="text-slate-400">Location</p>
-                      <p className="text-xl font-semibold">Santa Cruz, Laguna, Philippines</p>
+                      <p className="text-xl font-semibold">Cavinti, Laguna, Philippines</p>
                     </div>
                   </div>
                 </div>
@@ -589,36 +653,95 @@ export default function Portfolio() {
               </div>
 
               <form className="space-y-6 animate-slide-in-right" onSubmit={handleFormSubmit}>
+                {submitStatus === 'success' && (
+                  <div className="p-4 rounded-xl bg-green-500/10 border border-green-500/30 text-green-300 animate-slide-in-top">
+                    <p className="flex items-center space-x-2">
+                      <CheckCircle2 size={20} />
+                      <span>Message sent successfully! I'll get back to you soon.</span>
+                    </p>
+                  </div>
+                )}
+                
+                {submitStatus === 'error' && (
+                  <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-300 animate-slide-in-top">
+                    <p className="flex items-center space-x-2">
+                      <X size={20} />
+                      <span>Failed to send message. Please try again.</span>
+                    </p>
+                  </div>
+                )}
+                
                 <div className="animate-slide-in-right" style={{ animationDelay: '0.1s' }}>
                   <input
                     type="text"
                     name="name"
+                    value={formData.name}
+                    onChange={handleInputChange}
                     placeholder="Your Name"
-                    className="w-full px-6 py-4 rounded-xl bg-slate-900/50 border border-slate-700 focus:border-cyan-500 focus:outline-none transition-all duration-300 focus:shadow-lg focus:shadow-cyan-500/20 hover:border-slate-600"
+                    className={`w-full px-6 py-4 rounded-xl bg-slate-900/50 border transition-all duration-300 focus:outline-none focus:shadow-lg hover:border-slate-600 ${
+                      formErrors.name 
+                        ? 'border-red-500 focus:border-red-500 focus:shadow-red-500/20' 
+                        : 'border-slate-700 focus:border-cyan-500 focus:shadow-cyan-500/20'
+                    }`}
                   />
+                  {formErrors.name && (
+                    <p className="mt-2 text-red-400 text-sm animate-slide-in-top">{formErrors.name}</p>
+                  )}
                 </div>
+                
                 <div className="animate-slide-in-right" style={{ animationDelay: '0.2s' }}>
                   <input
                     type="email"
                     name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
                     placeholder="Your Email"
-                    className="w-full px-6 py-4 rounded-xl bg-slate-900/50 border border-slate-700 focus:border-cyan-500 focus:outline-none transition-all duration-300 focus:shadow-lg focus:shadow-cyan-500/20 hover:border-slate-600"
+                    className={`w-full px-6 py-4 rounded-xl bg-slate-900/50 border transition-all duration-300 focus:outline-none focus:shadow-lg hover:border-slate-600 ${
+                      formErrors.email 
+                        ? 'border-red-500 focus:border-red-500 focus:shadow-red-500/20' 
+                        : 'border-slate-700 focus:border-cyan-500 focus:shadow-cyan-500/20'
+                    }`}
                   />
+                  {formErrors.email && (
+                    <p className="mt-2 text-red-400 text-sm animate-slide-in-top">{formErrors.email}</p>
+                  )}
                 </div>
+                
                 <div className="animate-slide-in-right" style={{ animationDelay: '0.3s' }}>
                   <textarea
                     name="message"
+                    value={formData.message}
+                    onChange={handleInputChange}
                     rows={6}
                     placeholder="Your Message"
-                    className="w-full px-6 py-4 rounded-xl bg-slate-900/50 border border-slate-700 focus:border-cyan-500 focus:outline-none transition-all duration-300 focus:shadow-lg focus:shadow-cyan-500/20 hover:border-slate-600 resize-none"
+                    className={`w-full px-6 py-4 rounded-xl bg-slate-900/50 border transition-all duration-300 focus:outline-none focus:shadow-lg hover:border-slate-600 resize-none ${
+                      formErrors.message 
+                        ? 'border-red-500 focus:border-red-500 focus:shadow-red-500/20' 
+                        : 'border-slate-700 focus:border-cyan-500 focus:shadow-cyan-500/20'
+                    }`}
                   />
+                  {formErrors.message && (
+                    <p className="mt-2 text-red-400 text-sm animate-slide-in-top">{formErrors.message}</p>
+                  )}
                 </div>
+                
                 <button
                   type="submit"
-                  className="w-full px-8 py-5 rounded-xl bg-gradient-to-r from-cyan-500 to-purple-600 text-white font-bold text-lg hover:shadow-2xl hover:shadow-cyan-500/50 hover:scale-105 transition-all duration-300 flex items-center justify-center space-x-3 animate-slide-in-right animate-glow" style={{ animationDelay: '0.4s' }}
+                  disabled={isSubmitting}
+                  className="w-full px-8 py-5 rounded-xl bg-gradient-to-r from-cyan-500 to-purple-600 text-white font-bold text-lg hover:shadow-2xl hover:shadow-cyan-500/50 hover:scale-105 transition-all duration-300 flex items-center justify-center space-x-3 animate-slide-in-right animate-glow disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                  style={{ animationDelay: '0.4s' }}
                 >
-                  <span>Send Message</span>
-                  <Send size={22} />
+                  {isSubmitting ? (
+                    <>
+                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      <span>Sending...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>Send Message</span>
+                      <Send size={22} />
+                    </>
+                  )}
                 </button>
               </form>
             </div>
