@@ -446,7 +446,7 @@ export default function Portfolio() {
                 <div className="p-6 rounded-2xl bg-gradient-to-br from-slate-900/50 to-slate-950/50 border border-slate-800 hover:border-cyan-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/20 animate-slide-in-right hover:scale-105">
                   <h3 className="text-xl font-bold text-cyan-400 mb-3">🎓 Education</h3>
                   <p className="text-slate-300">Bachelor of Science in Information Technology - System Development</p>
-                  <p className="text-sm text-slate-400">Strong foundation in CS principles</p>
+                  <p className="text-sm text-slate-400">Strong foundation in CS principle</p>
                 </div>
                 <div className="p-6 rounded-2xl bg-gradient-to-br from-slate-900/50 to-slate-950/50 border border-slate-800 hover:border-cyan-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/20 animate-slide-in-right" style={{ animationDelay: '0.1s' }}>
                   <h3 className="text-xl font-bold text-purple-400 mb-3">💼 Track Record</h3>
