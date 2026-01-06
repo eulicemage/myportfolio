@@ -171,16 +171,16 @@ export default function Portfolio() {
 
   const projects = [
     {
-      title: 'EventSync - Event Management Platform',
+      title: 'LU BAO Merchandise',
       description:
-        'Full-featured event management SaaS with ticket sales, real-time analytics, QR check-in, and attendee management. Demonstrates expertise in building scalable, production-ready applications with modern tech stack.',
-      tech: ['PHP', 'MySQL', 'JavaScript', 'Tailwind CSS', 'Chart.js', 'RESTful API'],
+        'Android-based merchandise management and ordering application built for LU BAO. Features Firebase-backed authentication, real-time data synchronization, and a clean XML-based UI. Demonstrates mobile app development skills using Java and Firebase for scalable, production-ready solutions.',
+      tech: ['Android Studio', 'Java', 'Firebase', 'Firebase Authentication', 'Cloud Firestore', 'XML'],
       image: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=1200&q=80&auto=format&fit=crop',
-      results: ['500+ Events', '₱2M+ Tracked', 'Zero Downtime'],
+      results: ['Real-time Sync', 'Secure Login', 'Cloud-Based Data'],
       live: 'https://github.com/eulicemage',
       github: 'https://github.com/eulicemage',
       color: 'from-purple-500 to-pink-600',
-      highlights: ['Real-time Data Processing', 'Scalable Architecture', 'User Authentication']
+      highlights: ['Firebase Integration', 'Android UI with XML', 'Real-time Database']
     },
     {
       title: 'Rockies Fitness',
