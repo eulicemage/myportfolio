@@ -175,7 +175,7 @@ export default function Portfolio() {
       description:
         'Android-based merchandise management and ordering application built for LU BAO. Features Firebase-backed authentication, real-time data synchronization, and a clean XML-based UI. Demonstrates mobile app development skills using Java and Firebase for scalable, production-ready solutions.',
       tech: ['Android Studio', 'Java', 'Firebase', 'Firebase Authentication', 'Cloud Firestore', 'XML'],
-      image: '/images/Lu Bao Merchandise.png', // Use your exact filename
+      image: '/images/lu-bao-merchandise.png',
       results: ['Real-time Sync', 'Secure Login', 'Cloud-Based Data'],
       live: 'https://play.google.com/store/apps/details?id=com.gonzales.baomerchandise&hl=en',
       github: 'https://github.com/eulicemage',
@@ -186,7 +186,7 @@ export default function Portfolio() {
       title: 'Rockies Fitness',
       description:'Modern fitness gym website built with a responsive frontend and clean UI. Features a motivational landing page, user authentication entry point, and a strong brand-focused design to showcase gym services, trainers, and facilities.',
       tech: ['AJAX', 'Tailwind CSS', 'Laravel', 'MySQL'],
-      image: '/images/photo.png',
+      image: '/images/rockies-fitness.png',
       results: ['Responsive Design', 'Modern UI', 'Brand-Focused Layout'],
       live: 'https://www.rockiesfitnessph.com/', 
       github: 'https://github.com/jimdmnc/FitTrack',
@@ -198,7 +198,7 @@ export default function Portfolio() {
     description:
       'Responsive flower shop website designed to showcase products and provide a smooth browsing experience. Built using pure HTML, CSS, and JavaScript, featuring dynamic product displays, interactive UI elements, and clean, user-friendly design.',
     tech: ['HTML', 'CSS', 'JavaScript'],
-    image: '/images/floral haven.png',
+    image: '/images/floral-haven.png',
     results: ['Responsive Design', 'Interactive UI', 'Fast Load Time'],
     live: 'https://flowers-shop-project.netlify.app/',
     github: 'https://github.com/eulicemage',
