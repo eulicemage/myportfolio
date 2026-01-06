@@ -175,9 +175,9 @@ export default function Portfolio() {
       description:
         'Android-based merchandise management and ordering application built for LU BAO. Features Firebase-backed authentication, real-time data synchronization, and a clean XML-based UI. Demonstrates mobile app development skills using Java and Firebase for scalable, production-ready solutions.',
       tech: ['Android Studio', 'Java', 'Firebase', 'Firebase Authentication', 'Cloud Firestore', 'XML'],
-      image: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=1200&q=80&auto=format&fit=crop',
+      image: './images/Lu Bao Merchandise.png',
       results: ['Real-time Sync', 'Secure Login', 'Cloud-Based Data'],
-      live: 'https://github.com/eulicemage',
+      live: 'https://play.google.com/store/apps/details?id=com.gonzales.baomerchandise&hl=en',
       github: 'https://github.com/eulicemage',
       color: 'from-purple-500 to-pink-600',
       highlights: ['Firebase Integration', 'Android UI with XML', 'Real-time Database']
