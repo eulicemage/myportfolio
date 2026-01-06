@@ -184,27 +184,46 @@ export default function Portfolio() {
     },
     {
       title: 'Rockies Fitness',
-      description:'Modern fitness gym website built with a responsive frontend and clean UI. Features a motivational landing page, user authentication entry point, and a strong brand-focused design to showcase gym services, trainers, and facilities.',
-      tech: ['AJAX', 'Tailwind CSS', 'Laravel', 'MySQL'],
+      description:
+        'Integrated gym management system consisting of a web admin dashboard, Android mobile app, and RFID-based attendance hardware. The system enables real-time member monitoring, workout and calorie tracking, automated attendance logging, and centralized gym management. Designed to support both gym administrators and members with a seamless, data-driven experience.',
+      tech: [
+        'Laravel',
+        'MySQL',
+        'Tailwind CSS',
+        'AJAX',
+        'Android Studio',
+        'Java',
+        'Firebase',
+        'RFID Hardware Integration'
+      ],
       image: '/images/rockies-fitness.png',
-      results: ['Responsive Design', 'Modern UI', 'Brand-Focused Layout'],
-      live: 'https://www.rockiesfitnessph.com/', 
+      results: [
+        'Web & Mobile Integration',
+        'Automated Attendance Tracking',
+        'Real-time Member Monitoring'
+      ],
+      live: 'https://www.rockiesfitnessph.com/landing',
       github: 'https://github.com/jimdmnc/FitTrack',
       color: 'from-orange-500 to-red-600',
-      highlights: ['Hero Landing Page','Fitness Branding','Responsive Layout']
+      highlights: [
+        'Admin Web Dashboard',
+        'Android App for Members',
+        'Workout & Calorie Tracking',
+        'RFID-Based Attendance System'
+      ]
     },
     {
-    title: 'Floral Haven',
-    description:
-      'Responsive flower shop website designed to showcase products and provide a smooth browsing experience. Built using pure HTML, CSS, and JavaScript, featuring dynamic product displays, interactive UI elements, and clean, user-friendly design.',
-    tech: ['HTML', 'CSS', 'JavaScript'],
-    image: '/images/floral-haven.png',
-    results: ['Responsive Design', 'Interactive UI', 'Fast Load Time'],
-    live: 'https://flowers-shop-project.netlify.app/',
-    github: 'https://github.com/eulicemage',
-    color: 'from-cyan-500 to-blue-600',
-    highlights: ['Dynamic Product Display', 'Client-Side Interactivity', 'Mobile-Friendly Layout']
-  },
+      title: 'Floral Haven',
+      description:
+        'Responsive flower shop website designed to showcase products and provide a smooth browsing experience. Built using pure HTML, CSS, and JavaScript, featuring dynamic product displays, interactive UI elements, and clean, user-friendly design.',
+      tech: ['HTML', 'CSS', 'JavaScript'],
+      image: '/images/floral-haven.png',
+      results: ['Responsive Design', 'Interactive UI', 'Fast Load Time'],
+      live: 'https://flowers-shop-project.netlify.app/',
+      github: 'https://github.com/eulicemage',
+      color: 'from-cyan-500 to-blue-600',
+      highlights: ['Dynamic Product Display', 'Client-Side Interactivity', 'Mobile-Friendly Layout']
+    },
   ];
 
   const skills = {
