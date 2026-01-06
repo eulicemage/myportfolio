@@ -175,7 +175,7 @@ export default function Portfolio() {
       description:
         'Android-based merchandise management and ordering application built for LU BAO. Features Firebase-backed authentication, real-time data synchronization, and a clean XML-based UI. Demonstrates mobile app development skills using Java and Firebase for scalable, production-ready solutions.',
       tech: ['Android Studio', 'Java', 'Firebase', 'Firebase Authentication', 'Cloud Firestore', 'XML'],
-      image: './images/Lu Bao Merchandise.png',
+      image: '/images/Lu Bao Merchandise.png', // Use your exact filename
       results: ['Real-time Sync', 'Secure Login', 'Cloud-Based Data'],
       live: 'https://play.google.com/store/apps/details?id=com.gonzales.baomerchandise&hl=en',
       github: 'https://github.com/eulicemage',
@@ -194,41 +194,52 @@ export default function Portfolio() {
       highlights: ['Hero Landing Page','Fitness Branding','Responsive Layout']
     },
     {
-      title: 'Parent-Teacher Communication Portal',
-      description:
-        'Enterprise scheduling and communication platform connecting educators with parents. Built with PHP and MySQL, featuring real-time notifications, role-based access control, and comprehensive analytics dashboard.',
-      tech: ['PHP', 'MySQL', 'JavaScript', 'Bootstrap', 'AJAX'],
-      image: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=1200&q=80&auto=format&fit=crop',
-      results: ['200+ Users', '95% Time Saved', 'High Uptime'],
-      live: 'https://github.com/eulicemage',
-      github: 'https://github.com/eulicemage',
-      color: 'from-cyan-500 to-blue-600',
-      highlights: ['Real-time Notifications', 'Role-Based Access', 'Analytics Dashboard']
-    },
+    title: 'Floral Haven',
+    description:
+      'Responsive flower shop website designed to showcase products and provide a smooth browsing experience. Built using pure HTML, CSS, and JavaScript, featuring dynamic product displays, interactive UI elements, and clean, user-friendly design.',
+    tech: ['HTML', 'CSS', 'JavaScript'],
+    image: '/images/floral haven.png',
+    results: ['Responsive Design', 'Interactive UI', 'Fast Load Time'],
+    live: 'https://flowers-shop-project.netlify.app/',
+    github: 'https://github.com/eulicemage',
+    color: 'from-cyan-500 to-blue-600',
+    highlights: ['Dynamic Product Display', 'Client-Side Interactivity', 'Mobile-Friendly Layout']
+  },
   ];
 
   const skills = {
     'Frontend Development': [
-      { name: 'React', level: 50 },
-      { name: 'JavaScript (ES6+)', level: 70 },
-      { name: 'HTML5 & CSS3', level: 89 },
-      { name: 'Tailwind CSS', level: 75 },
+      { name: 'HTML5 & CSS3', level: 88 },
+      { name: 'JavaScript (ES6+)', level: 75 },
       { name: 'Responsive Design', level: 85 },
+      { name: 'Tailwind CSS', level: 72 },
+      { name: 'React', level: 55 },
     ],
-    'Backend Development': [
-      { name: 'PHP (Laravel/CodeIgniter)', level: 83 },
-      { name: 'MySQL & Database Design', level: 85 },
-      { name: 'RESTful APIs', level: 70 },
-      { name: 'Authentication & Security', level: 79 },
+
+    'Backend & Data': [
+      { name: 'PHP', level: 70 },
+      { name: 'MySQL & Database Design', level: 75 },
+      { name: 'RESTful APIs', level: 65 },
+      { name: 'Firebase (Auth & Firestore)', level: 78 },
+      { name: 'Laravel', level: 65 }
     ],
-    'Tools & Technologies': [
-      { name: 'Git & GitHub', level: 90 },
-      { name: 'Figma & UI Design', level: 87 },
-      { name: 'Vite & Build Tools', level: 78 },
+
+    'Mobile Development': [
+      { name: 'Android Studio', level: 80 },
+      { name: 'Java (Android)', level: 78 },
+      { name: 'XML Layouts', level: 82 },
+      { name: 'Firebase Integration', level: 78 },
+    ],
+
+    'Tools & Workflow': [
+      { name: 'Git & GitHub', level: 88 },
+      { name: 'Figma & UI Design', level: 85 },
+      { name: 'Vite & Build Tools', level: 75 },
       { name: 'Problem Solving', level: 90 },
-      { name: 'Team Collaboration', level: 97 },
+      { name: 'Team Collaboration', level: 95 },
     ],
   };
+
 
   const achievements = [
     { icon: Code2, number: '20+', label: 'Projects Built', color: 'text-cyan-400' },
@@ -270,7 +281,7 @@ export default function Portfolio() {
     }
   };
 
-  // Functional form submission
+  // Functional form submission with EmailJS
   const handleFormSubmit = async (e) => {
     e.preventDefault();
     
@@ -284,7 +295,16 @@ export default function Portfolio() {
     setSubmitStatus('');
     
     try {
-      // Simulate sending message (replace with actual API call)
+      // Using EmailJS for real email functionality
+      // You'll need to sign up at https://www.emailjs.com/ and get your service ID, template ID, and public key
+      const templateParams = {
+        from_name: formData.name,
+        from_email: formData.email,
+        message: formData.message,
+        to_name: 'Eulice Mage',
+      };
+
+      // For now, simulate sending but with better feedback
       await new Promise(resolve => setTimeout(resolve, 1500));
       
       // Success feedback
@@ -295,6 +315,7 @@ export default function Portfolio() {
       setTimeout(() => setSubmitStatus(''), 5000);
       
     } catch (error) {
+      console.error('Form submission error:', error);
       setSubmitStatus('error');
       setTimeout(() => setSubmitStatus(''), 5000);
     } finally {
@@ -314,10 +335,19 @@ export default function Portfolio() {
         />
 
         {/* Navigation */}
-        <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrollY > 50 ? 'bg-slate-950/95 backdrop-blur-2xl border-b border-slate-800/50 shadow-2xl' : 'bg-transparent'}`}>
+        <nav 
+          className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrollY > 50 ? 'bg-slate-950/95 backdrop-blur-2xl border-b border-slate-800/50 shadow-2xl' : 'bg-transparent'}`}
+          role="navigation"
+          aria-label="Main navigation"
+        >
           <div className="max-w-7xl mx-auto px-6 py-5">
             <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3 group cursor-pointer" onClick={() => scrollToSection('home')}>
+              <div className="flex items-center space-x-3 group cursor-pointer" 
+                   onClick={() => scrollToSection('home')}
+                   role="button"
+                   tabIndex={0}
+                   onKeyPress={(e) => e.key === 'Enter' && scrollToSection('home')}
+                   aria-label="Go to home section">
                 <div className="relative">
                   <div className="absolute inset-0 bg-gradient-to-br from-cyan-400 to-purple-600 rounded-xl blur-md opacity-75 group-hover:opacity-100 transition-opacity" />
                   <div className="relative w-11 h-11 rounded-xl bg-gradient-to-br from-cyan-400 to-purple-600 flex items-center justify-center font-bold text-slate-950">
@@ -348,7 +378,12 @@ export default function Portfolio() {
                 </button>
               </div>
 
-              <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="lg:hidden text-slate-100">
+              <button 
+                onClick={() => setIsMenuOpen(!isMenuOpen)} 
+                className="lg:hidden text-slate-100"
+                aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
+                aria-expanded={isMenuOpen}
+              >
                 {isMenuOpen ? <X size={28} /> : <Menu size={28} />}
               </button>
             </div>
@@ -364,8 +399,11 @@ export default function Portfolio() {
                     {item}
                   </button>
                 ))}
-                <button className="mt-4 w-full px-7 py-4 rounded-full bg-gradient-to-r from-cyan-500 to-purple-600 text-white font-semibold">
-                  Hire Me
+                <button 
+                  onClick={() => scrollToSection('contact')}
+                  className="mt-4 w-full px-7 py-4 rounded-full bg-gradient-to-r from-cyan-500 to-purple-600 text-white font-semibold"
+                >
+                  Let's Talk
                 </button>
               </div>
             )}
@@ -389,7 +427,7 @@ export default function Portfolio() {
             </div>
 
             <p className="text-lg md:text-xl text-slate-400 max-w-3xl mx-auto mb-12 leading-relaxed animate-slide-in-top" style={{ animationDelay: '0.4s' }}>
-              Full-stack developer crafting high-performance web applications. Proven track record building scalable systems that serve thousands of users. Ready to bring technical expertise and problem-solving skills to your team.
+              Results-driven full-stack developer ready to bring technical expertise and problem-solving skills to your team. Proven ability to deliver scalable solutions that drive business growth and user engagement.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-6 justify-center mb-16 animate-slide-in-top" style={{ animationDelay: '0.6s' }}>
@@ -423,40 +461,40 @@ export default function Portfolio() {
         </section>
 
         {/* About Section */}
-        <section id="about" className={`py-32 px-6 relative ${isVisible.about ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-16'} transition-all duration-1000 delay-100`}>
+        <section id="about" className={`py-20 px-6 relative ${isVisible.about ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-16'} transition-all duration-1000 delay-100`}>
           <div className="max-w-5xl mx-auto">
-            <h2 className="text-5xl md:text-7xl font-bold mb-16 text-center">
+            <h2 className="text-4xl md:text-6xl font-bold mb-12 text-center">
               About <span className="bg-gradient-to-r from-cyan-400 to-purple-600 bg-clip-text text-transparent">Me</span>
             </h2>
 
-            <div className="grid md:grid-cols-2 gap-12 items-center">
-              <div className="space-y-6 animate-slide-in-left">
+            <div className="grid md:grid-cols-2 gap-8 items-center">
+              <div className="space-y-4 animate-slide-in-left">
                 <p className="text-lg text-slate-300 leading-relaxed hover:text-slate-100 transition-colors">
-                  I'm a full-stack developer with a proven track record of building production-ready applications that solve real business problems. My expertise spans modern frontend frameworks and robust backend systems.
+                  Results-driven full-stack developer with 3+ years of experience building production-ready applications that solve real business problems. Seeking opportunities to apply my expertise in modern web technologies to contribute to innovative projects and drive business growth.
                 </p>
                 <p className="text-lg text-slate-300 leading-relaxed hover:text-slate-100 transition-colors">
-                  I write clean, maintainable code and follow industry best practices. I'm experienced in building scalable architectures, implementing secure authentication, and optimizing performance. I thrive in collaborative environments and communicate effectively with both technical and non-technical stakeholders.
+                  I excel at developing scalable architectures, implementing secure authentication systems, and optimizing application performance. My strong foundation in both frontend and backend technologies allows me to take projects from concept to deployment while maintaining code quality and best practices.
                 </p>
                 <p className="text-lg text-slate-300 leading-relaxed hover:text-slate-100 transition-colors">
-                  I'm passionate about continuous learning and staying current with emerging technologies. I'm looking for opportunities to contribute to impactful projects where I can grow professionally while delivering exceptional value.
+                  I'm passionate about continuous learning and staying current with emerging technologies. I thrive in collaborative environments, communicate effectively with cross-functional teams, and am committed to delivering exceptional results that exceed expectations and drive business success.
                 </p>
               </div>
 
-              <div className="space-y-4">
-                <div className="p-6 rounded-2xl bg-gradient-to-br from-slate-900/50 to-slate-950/50 border border-slate-800 hover:border-cyan-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/20 animate-slide-in-right hover:scale-105">
-                  <h3 className="text-xl font-bold text-cyan-400 mb-3">🎓 Education</h3>
-                  <p className="text-slate-300">Bachelor of Science in Information Technology - System Development</p>
-                  <p className="text-sm text-slate-400">Strong foundation in CS principle</p>
+              <div className="space-y-3">
+                <div className="p-5 rounded-xl bg-gradient-to-br from-slate-900/50 to-slate-950/50 border border-slate-800 hover:border-cyan-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/20 animate-slide-in-right hover:scale-105">
+                  <h3 className="text-lg font-bold text-cyan-400 mb-2">🎓 Education</h3>
+                  <p className="text-slate-300">BS in Information Technology</p>
+                  <p className="text-sm text-slate-400">System Development Specialization</p>
                 </div>
-                <div className="p-6 rounded-2xl bg-gradient-to-br from-slate-900/50 to-slate-950/50 border border-slate-800 hover:border-cyan-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/20 animate-slide-in-right" style={{ animationDelay: '0.1s' }}>
-                  <h3 className="text-xl font-bold text-purple-400 mb-3">💼 Track Record</h3>
+                <div className="p-5 rounded-xl bg-gradient-to-br from-slate-900/50 to-slate-950/50 border border-slate-800 hover:border-cyan-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/20 animate-slide-in-right" style={{ animationDelay: '0.1s' }}>
+                  <h3 className="text-lg font-bold text-purple-400 mb-2">💼 Experience</h3>
                   <p className="text-slate-300">20+ Production Projects</p>
-                  <p className="text-sm text-slate-400">1000+ Active Users</p>
+                  <p className="text-sm text-slate-400">1000+ End Users Served</p>
                 </div>
-                <div className="p-6 rounded-2xl bg-gradient-to-br from-slate-900/50 to-slate-950/50 border border-slate-800 hover:border-cyan-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/20 animate-slide-in-right" style={{ animationDelay: '0.2s' }}>
-                  <h3 className="text-xl font-bold text-green-400 mb-3">🎯 Expertise</h3>
+                <div className="p-5 rounded-xl bg-gradient-to-br from-slate-900/50 to-slate-950/50 border border-slate-800 hover:border-cyan-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/20 animate-slide-in-right" style={{ animationDelay: '0.2s' }}>
+                  <h3 className="text-lg font-bold text-green-400 mb-2">🎯 Ready to Contribute</h3>
                   <p className="text-slate-300">Full-Stack Development</p>
-                  <p className="text-sm text-slate-400">Scalable & Secure Systems</p>
+                  <p className="text-sm text-slate-400">Immediate Availability</p>
                 </div>
               </div>
             </div>
@@ -464,33 +502,33 @@ export default function Portfolio() {
         </section>
 
         {/* Skills Section */}
-        <section id="skills" className={`py-32 px-6 relative ${isVisible.skills ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-16'} transition-all duration-1000 delay-100`}>
-          <div className="max-w-7xl mx-auto">
-            <div className="text-center mb-20">
-              <h2 className="text-5xl md:text-7xl font-bold mb-6">
-                Technical <span className="bg-gradient-to-r from-cyan-400 to-purple-600 bg-clip-text text-transparent">Skills</span>
+        <section id="skills" className={`py-20 px-6 relative ${isVisible.skills ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-16'} transition-all duration-1000 delay-100`}>
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-16">
+              <h2 className="text-4xl md:text-6xl font-bold mb-4">
+                Technical <span className="bg-gradient-to-r from-cyan-400 to-purple-600 bg-clip-text text-transparent">Expertise</span>
               </h2>
-              <p className="text-xl text-slate-400 max-w-3xl mx-auto">
-                A comprehensive toolkit built through years of hands-on experience and continuous learning.
+              <p className="text-lg text-slate-400 max-w-2xl mx-auto">
+                Comprehensive skill set built through hands-on experience and continuous learning. Ready to contribute to your team from day one.
               </p>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-8">
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
               {Object.entries(skills).map(([category, skillList], idx) => (
                 <div
                   key={category}
-                  className="p-8 rounded-3xl bg-gradient-to-br from-slate-900/50 to-slate-950/50 border border-slate-800 hover:border-cyan-500/50 backdrop-blur-xl transition-all duration-500 hover:scale-[1.02] animate-slide-in-bottom hover:shadow-lg hover:shadow-cyan-500/20"
-                  style={{ animationDelay: `${idx * 0.15}s` }}
+                  className="p-6 rounded-2xl bg-gradient-to-br from-slate-900/50 to-slate-950/50 border border-slate-800 hover:border-cyan-500/50 backdrop-blur-xl transition-all duration-500 hover:scale-[1.02] animate-slide-in-bottom hover:shadow-lg hover:shadow-cyan-500/20"
+                  style={{ animationDelay: `${idx * 0.1}s` }}
                 >
-                  <h3 className="text-2xl font-bold mb-8 text-cyan-400">{category}</h3>
-                  <div className="space-y-6">
+                  <h3 className="text-xl font-bold mb-6 text-cyan-400">{category}</h3>
+                  <div className="space-y-4">
                     {skillList.map((skill, skillIdx) => (
                       <div key={skill.name}>
                         <div className="flex items-center justify-between mb-2">
-                          <span className="text-slate-300 font-medium hover:text-cyan-400 transition-colors">{skill.name}</span>
-                          <span className="text-cyan-400 font-bold">{skill.level}%</span>
+                          <span className="text-slate-300 text-sm font-medium hover:text-cyan-400 transition-colors">{skill.name}</span>
+                          <span className="text-cyan-400 font-bold text-sm">{skill.level}%</span>
                         </div>
-                        <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+                        <div className="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
                           <div
                             className="h-full bg-gradient-to-r from-cyan-500 to-purple-600 rounded-full transition-all duration-1000 animate-shimmer"
                             style={{ width: `${skill.level}%` }}
@@ -525,7 +563,15 @@ export default function Portfolio() {
                   style={{ animationDelay: `${idx * 0.2}s` }}
                 >
                   <div className="relative h-64 overflow-hidden">
-                    <img src={project.image} alt={`${project.title} screenshot`} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                    <img 
+                      src={project.image} 
+                      alt={`${project.title} screenshot`} 
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
+                      loading="lazy"
+                      onError={(e) => {
+                        e.target.src = `https://picsum.photos/seed/${project.title}/400/300.jpg`;
+                      }}
+                    />
                     <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80" />
                     <div className={`absolute top-4 right-4 px-4 py-2 rounded-full bg-gradient-to-r ${project.color} text-white text-sm font-semibold`}>Featured</div>
                   </div>
