@@ -178,7 +178,7 @@ export default function Portfolio() {
       image: '/images/lu-bao-merchandise.png',
       results: ['Real-time Sync', 'Secure Login', 'Cloud-Based Data'],
       live: 'https://play.google.com/store/apps/details?id=com.gonzales.baomerchandise&hl=en',
-      github: 'https://github.com/eulicemage',
+      github: 'https://github.com/eulicemage/LU-BAO-Merchandise',
       color: 'from-purple-500 to-pink-600',
       highlights: ['Firebase Integration', 'Android UI with XML', 'Real-time Database']
     },
@@ -220,7 +220,7 @@ export default function Portfolio() {
       image: '/images/floral-haven.png',
       results: ['Responsive Design', 'Interactive UI', 'Fast Load Time'],
       live: 'https://flowers-shop-project.netlify.app/',
-      github: 'https://github.com/eulicemage',
+      github: 'https://github.com/eulicemage/floral-haven',
       color: 'from-cyan-500 to-blue-600',
       highlights: ['Dynamic Product Display', 'Client-Side Interactivity', 'Mobile-Friendly Layout']
     },
@@ -232,7 +232,7 @@ export default function Portfolio() {
       { name: 'JavaScript (ES6+)', level: 75 },
       { name: 'Responsive Design', level: 85 },
       { name: 'Tailwind CSS', level: 72 },
-      { name: 'React', level: 55 },
+      { name: 'React', level: 20 },
     ],
 
     'Backend & Data': [
