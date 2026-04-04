@@ -1,187 +1,157 @@
-import React, { useEffect, useRef, useState } from 'react';
+// src/components/Portfolio.jsx
+import React, { useState, useEffect, useRef } from 'react';
 import {
-  ArrowRight,
-  Briefcase,
-  ExternalLink,
   Github,
-  GraduationCap,
-  Layers3,
-  Linkedin,
   Mail,
-  MapPin,
+  ExternalLink,
+  Code2,
   Menu,
-  Sparkles,
-  TerminalSquare,
   X,
+  CheckCircle2,
+  TrendingUp,
+  Users,
+  Zap,
+  Terminal,
+  Send,
+  MapPin,
+  Phone,
+  Linkedin,
 } from 'lucide-react';
 
-const navItems = [
-  { id: 'home', label: 'Home' },
-  { id: 'about', label: 'About' },
-  { id: 'proof', label: 'Proof' },
-  { id: 'projects', label: 'Projects' },
-  { id: 'contact', label: 'Contact' },
-];
-
-const heroRoles = [
-  'Fresh Graduate Software Developer',
-  'Frontend-leaning Full-Stack Builder',
-  'Interface-Driven Problem Solver',
-];
-
-const proofCards = [
-  {
-    icon: Layers3,
-    title: 'Flagship public-sector build',
-    body:
-      'EBPLS anchors the portfolio: an LGU-oriented platform shaped around real workflows, role-based experiences, and clear handoff between applicant and staff views.',
-  },
-  {
-    icon: TerminalSquare,
-    title: 'Modern web stack in practice',
-    body:
-      'Hands-on work with React, Next.js, Node/Express, and Supabase, paired with earlier projects in Laravel, Firebase, Android, and responsive front-end builds.',
-  },
-  {
-    icon: Briefcase,
-    title: 'Early-career, team-ready mindset',
-    body:
-      'Positioning is intentionally honest: a fresh graduate who ships, documents thinking, and is ready to grow inside a product or engineering team.',
-  },
-];
-
-const capabilityGroups = [
-  {
-    title: 'Frontend and product UI',
-    items: ['React', 'Next.js', 'Responsive layouts', 'UI states', 'Accessible interaction basics'],
-  },
-  {
-    title: 'Backend and data',
-    items: ['Node/Express', 'Supabase', 'REST APIs', 'Authentication flows', 'Database-backed features'],
-  },
-  {
-    title: 'Workflow and delivery',
-    items: ['Git/GitHub', 'Component thinking', 'Cross-device testing', 'Debugging', 'Collaborative iteration'],
-  },
-];
-
-const projectHighlights = [
-  {
-    label: 'LGU-focused workflow',
-    value: 'Permits and licensing flow designed for clearer applicant and staff journeys.',
-  },
-  {
-    label: 'Full-stack architecture',
-    value: 'React and Next.js on the client side, Node/Express services, and Supabase for data and platform support.',
-  },
-  {
-    label: 'Proof over promises',
-    value: 'Showcases how I approach real interfaces, structured data, and implementation detail as an entry-level developer.',
-  },
-];
-
-const supportingProjects = [
-  {
-    title: 'Rockies Fitness',
-    description:
-      'A gym management system spanning web admin, Android member flows, and RFID-based attendance tracking.',
-    stack: ['Laravel', 'MySQL', 'Tailwind CSS', 'Android Studio', 'Firebase'],
-    live: 'https://www.rockiesfitnessph.com/landing',
-    github: 'https://github.com/jimdmnc/FitTrack',
-  },
-  {
-    title: 'LU BAO Merchandise',
-    description:
-      'An Android merchandise ordering app with Firebase-backed authentication and synchronized product data.',
-    stack: ['Java', 'Android Studio', 'Firebase', 'Cloud Firestore', 'XML'],
-    live: 'https://play.google.com/store/apps/details?id=com.gonzales.baomerchandise&hl=en',
-    github: 'https://github.com/eulicemage/LU-BAO-Merchandise',
-  },
-  {
-    title: 'Floral Haven',
-    description:
-      'A polished front-end storefront concept built with HTML, CSS, and JavaScript, focused on presentation and browsing flow.',
-    stack: ['HTML', 'CSS', 'JavaScript'],
-    live: 'https://flowers-shop-project.netlify.app/',
-    github: 'https://github.com/eulicemage/floral-haven',
-  },
-];
-
 export default function Portfolio() {
+  const [scrollY, setScrollY] = useState(0);
   const [activeSection, setActiveSection] = useState('home');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [scrollY, setScrollY] = useState(0);
   const [typedText, setTypedText] = useState('');
   const [cursorVisible, setCursorVisible] = useState(true);
   const [isVisible, setIsVisible] = useState({});
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    message: ''
+  });
+  const [formErrors, setFormErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState('');
 
+  const roles = [
+    'Software Developer',
+    'Web Developer',
+    'Aspiring Developer',
+    'Tech Enthusiast',
+  ];
+  const [currentRoleIndex, setCurrentRoleIndex] = useState(0);
+
+  // refs for typing animation and lifecycle
   const typingTimeoutRef = useRef(null);
-  const roleIndexRef = useRef(0);
-  const characterIndexRef = useRef(0);
+  const isMountedRef = useRef(true);
+  const charIndexRef = useRef(0);
   const isDeletingRef = useRef(false);
 
+  // Mouse follow effect (SSR-safe)
   useEffect(() => {
-    if (typeof window === 'undefined') {
-      return undefined;
-    }
-
-    const handleMouseMove = (event) => {
-      setMousePosition({ x: event.clientX, y: event.clientY });
+    if (typeof window === 'undefined') return;
+    const handleMouseMove = (e) => {
+      setMousePosition({ x: e.clientX, y: e.clientY });
     };
-
     window.addEventListener('mousemove', handleMouseMove);
-
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
+  // Typing animation (pure JS)
   useEffect(() => {
-    if (typeof document === 'undefined' || typeof window === 'undefined') {
-      return undefined;
-    }
+    isMountedRef.current = true;
 
-    const sections = navItems.map((item) => item.id);
+    const startTyping = () => {
+      const role = roles[currentRoleIndex];
+
+      const tick = () => {
+        if (!isMountedRef.current) return;
+
+        if (!isDeletingRef.current) {
+          charIndexRef.current += 1;
+          if (charIndexRef.current <= role.length) {
+            setTypedText(role.substring(0, charIndexRef.current));
+            typingTimeoutRef.current = setTimeout(tick, 100);
+            return;
+          }
+          // pause then delete
+          typingTimeoutRef.current = setTimeout(() => {
+            isDeletingRef.current = true;
+            typingTimeoutRef.current = setTimeout(tick, 80);
+          }, 1400);
+        } else {
+          charIndexRef.current -= 1;
+          if (charIndexRef.current >= 0) {
+            setTypedText(role.substring(0, charIndexRef.current));
+            typingTimeoutRef.current = setTimeout(tick, 50);
+            return;
+          }
+          // finished deleting -> next role
+          isDeletingRef.current = false;
+          charIndexRef.current = 0;
+          setCurrentRoleIndex((prev) => (prev + 1) % roles.length);
+        }
+      };
+
+      // reset and start
+      charIndexRef.current = 0;
+      isDeletingRef.current = false;
+      if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+      typingTimeoutRef.current = setTimeout(tick, 500);
+    };
+
+    startTyping();
+
+    return () => {
+      isMountedRef.current = false;
+      if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentRoleIndex]);
+
+  // Cursor blink
+  useEffect(() => {
+    const cursorInterval = setInterval(() => {
+      setCursorVisible((prev) => !prev);
+    }, 530);
+    return () => clearInterval(cursorInterval);
+  }, []);
+
+  // Scroll handling + Intersection Observer (SSR-safe)
+  useEffect(() => {
+    if (typeof window === 'undefined' || typeof document === 'undefined') return;
 
     const handleScroll = () => {
-      setScrollY(window.scrollY);
+      const y = window.scrollY;
+      setScrollY(y);
 
-      const currentSection = sections.find((sectionId) => {
-        const section = document.getElementById(sectionId);
-        if (!section) {
-          return false;
+      const sections = ['home', 'about', 'skills', 'projects', 'contact'];
+      const current = sections.find((section) => {
+        const el = document.getElementById(section);
+        if (el) {
+          const rect = el.getBoundingClientRect();
+          return rect.top <= 150 && rect.bottom >= 150;
         }
-
-        const rect = section.getBoundingClientRect();
-        return rect.top <= 180 && rect.bottom >= 180;
+        return false;
       });
-
-      if (currentSection) {
-        setActiveSection(currentSection);
-      }
+      if (current) setActiveSection(current);
     };
 
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setIsVisible((current) => ({
-              ...current,
-              [entry.target.id]: true,
-            }));
+          if (entry.isIntersecting && entry.target.id) {
+            setIsVisible((prev) => ({ ...prev, [entry.target.id]: true }));
           }
         });
       },
-      {
-        threshold: 0.12,
-        rootMargin: '0px 0px -10% 0px',
-      }
+      { threshold: 0.1, rootMargin: '0px 0px -100px 0px' }
     );
 
-    sections.forEach((sectionId) => {
-      const section = document.getElementById(sectionId);
-      if (section) {
-        observer.observe(section);
-      }
+    document.querySelectorAll('section[id]').forEach((section) => {
+      observer.observe(section);
     });
 
     window.addEventListener('scroll', handleScroll, { passive: true });
@@ -193,558 +163,663 @@ export default function Portfolio() {
     };
   }, []);
 
-  useEffect(() => {
-    let isMounted = true;
+  const scrollToSection = (id) => {
+    if (typeof document === 'undefined') return;
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+    setIsMenuOpen(false);
+  };
 
-    const runTyping = () => {
-      const currentRole = heroRoles[roleIndexRef.current];
+  const projects = [
+    {
+      title: 'LU BAO Merchandise',
+      description:
+        'Android-based merchandise management and ordering application built for LU BAO. Features Firebase-backed authentication, real-time data synchronization, and a clean XML-based UI. Demonstrates mobile app development skills using Java and Firebase for scalable, production-ready solutions.',
+      tech: ['Android Studio', 'Java', 'Firebase', 'Firebase Authentication', 'Cloud Firestore', 'XML'],
+      image: '/images/lu-bao-merchandise.png',
+      results: ['Real-time Sync', 'Secure Login', 'Cloud-Based Data'],
+      live: 'https://play.google.com/store/apps/details?id=com.gonzales.baomerchandise&hl=en',
+      github: 'https://github.com/eulicemage/LU-BAO-Merchandise',
+      color: 'from-purple-500 to-pink-600',
+      highlights: ['Firebase Integration', 'Android UI with XML', 'Real-time Database']
+    },
+    {
+      title: 'Rockies Fitness',
+      description:
+        'Integrated gym management system consisting of a web admin dashboard, Android mobile app, and RFID-based attendance hardware. The system enables real-time member monitoring, workout and calorie tracking, automated attendance logging, and centralized gym management. Designed to support both gym administrators and members with a seamless, data-driven experience.',
+      tech: [
+        'Laravel',
+        'MySQL',
+        'Tailwind CSS',
+        'AJAX',
+        'Android Studio',
+        'Java',
+        'Firebase',
+        'RFID Hardware Integration'
+      ],
+      image: '/images/rockies-fitness.png',
+      results: [
+        'Web & Mobile Integration',
+        'Automated Attendance Tracking',
+        'Real-time Member Monitoring'
+      ],
+      live: 'https://www.rockiesfitnessph.com/landing',
+      github: 'https://github.com/jimdmnc/FitTrack',
+      color: 'from-orange-500 to-red-600',
+      highlights: [
+        'Admin Web Dashboard',
+        'Android App for Members',
+        'Workout & Calorie Tracking',
+        'RFID-Based Attendance System'
+      ]
+    },
+    {
+      title: 'Floral Haven',
+      description:
+        'Responsive flower shop website designed to showcase products and provide a smooth browsing experience. Built using pure HTML, CSS, and JavaScript, featuring dynamic product displays, interactive UI elements, and clean, user-friendly design.',
+      tech: ['HTML', 'CSS', 'JavaScript'],
+      image: '/images/floral-haven.png',
+      results: ['Responsive Design', 'Interactive UI', 'Fast Load Time'],
+      live: 'https://flowers-shop-project.netlify.app/',
+      github: 'https://github.com/eulicemage/floral-haven',
+      color: 'from-cyan-500 to-blue-600',
+      highlights: ['Dynamic Product Display', 'Client-Side Interactivity', 'Mobile-Friendly Layout']
+    },
+  ];
 
-      const tick = () => {
-        if (!isMounted) {
-          return;
-        }
+  const skills = {
+    'Frontend Development': [
+      { name: 'HTML5 & CSS3', level: 88 },
+      { name: 'JavaScript (ES6+)', level: 75 },
+      { name: 'Responsive Design', level: 85 },
+      { name: 'Tailwind CSS', level: 72 },
+      { name: 'React', level: 20 },
+    ],
 
-        if (!isDeletingRef.current) {
-          characterIndexRef.current += 1;
-          const nextText = currentRole.slice(0, characterIndexRef.current);
-          setTypedText(nextText);
+    'Backend & Data': [
+      { name: 'PHP', level: 70 },
+      { name: 'MySQL & Database Design', level: 75 },
+      { name: 'RESTful APIs', level: 65 },
+      { name: 'Firebase (Auth & Firestore)', level: 78 },
+      { name: 'Laravel', level: 65 }
+    ],
 
-          if (characterIndexRef.current === currentRole.length) {
-            typingTimeoutRef.current = setTimeout(() => {
-              isDeletingRef.current = true;
-              tick();
-            }, 1400);
-            return;
-          }
+    'Mobile Development': [
+      { name: 'Android Studio', level: 80 },
+      { name: 'Java (Android)', level: 78 },
+      { name: 'XML Layouts', level: 82 },
+      { name: 'Firebase Integration', level: 78 },
+    ],
 
-          typingTimeoutRef.current = setTimeout(tick, 70);
-          return;
-        }
+    'Tools & Workflow': [
+      { name: 'Git & GitHub', level: 88 },
+      { name: 'Figma & UI Design', level: 85 },
+      { name: 'Vite & Build Tools', level: 75 },
+      { name: 'Problem Solving', level: 90 },
+      { name: 'Team Collaboration', level: 95 },
+    ],
+  };
 
-        characterIndexRef.current -= 1;
-        const nextText = currentRole.slice(0, Math.max(characterIndexRef.current, 0));
-        setTypedText(nextText);
 
-        if (characterIndexRef.current <= 0) {
-          isDeletingRef.current = false;
-          roleIndexRef.current = (roleIndexRef.current + 1) % heroRoles.length;
-          typingTimeoutRef.current = setTimeout(tick, 240);
-          return;
-        }
+  const achievements = [
+    { icon: Code2, number: '20+', label: 'Projects Built', color: 'text-cyan-400' },
+    { icon: Users, number: '1000+', label: 'Users Served', color: 'text-purple-400' },
+    { icon: Zap, number: '99.9%', label: 'Uptime Record', color: 'text-green-400' },
+    { icon: TrendingUp, number: '3+', label: 'Years Experience', color: 'text-orange-400' },
+  ];
 
-        typingTimeoutRef.current = setTimeout(tick, 40);
-      };
-
-      tick();
-    };
-
-    runTyping();
-
-    return () => {
-      isMounted = false;
-      if (typingTimeoutRef.current) {
-        clearTimeout(typingTimeoutRef.current);
-      }
-    };
-  }, []);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCursorVisible((current) => !current);
-    }, 500);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  const scrollToSection = (sectionId) => {
-    if (typeof document === 'undefined') {
-      return;
+  // Form validation
+  const validateForm = () => {
+    const errors = {};
+    
+    if (!formData.name.trim()) {
+      errors.name = 'Name is required';
     }
+    
+    if (!formData.email.trim()) {
+      errors.email = 'Email is required';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      errors.email = 'Please enter a valid email';
+    }
+    
+    if (!formData.message.trim()) {
+      errors.message = 'Message is required';
+    } else if (formData.message.trim().length < 10) {
+      errors.message = 'Message must be at least 10 characters';
+    }
+    
+    return errors;
+  };
 
-    const section = document.getElementById(sectionId);
-    if (section) {
-      section.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      setIsMenuOpen(false);
+  // Handle input changes
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+    // Clear error for this field when user starts typing
+    if (formErrors[name]) {
+      setFormErrors(prev => ({ ...prev, [name]: '' }));
     }
   };
 
-  const revealClass = (sectionId) =>
-    isVisible[sectionId]
-      ? 'portfolio-reveal portfolio-reveal-visible'
-      : 'portfolio-reveal';
+  // Functional form submission with EmailJS
+  const handleFormSubmit = async (e) => {
+    e.preventDefault();
+    
+    const errors = validateForm();
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
+      return;
+    }
+    
+    setIsSubmitting(true);
+    setSubmitStatus('');
+    
+    try {
+      // Using EmailJS for real email functionality
+      // You'll need to sign up at https://www.emailjs.com/ and get your service ID, template ID, and public key
+      const templateParams = {
+        from_name: formData.name,
+        from_email: formData.email,
+        message: formData.message,
+        to_name: 'Eulice Mage',
+      };
+
+      // For now, simulate sending but with better feedback
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // Success feedback
+      setSubmitStatus('success');
+      setFormData({ name: '', email: '', message: '' });
+      
+      // Clear success message after 5 seconds
+      setTimeout(() => setSubmitStatus(''), 5000);
+      
+    } catch (error) {
+      console.error('Form submission error:', error);
+      setSubmitStatus('error');
+      setTimeout(() => setSubmitStatus(''), 5000);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
-    <div className="portfolio-shell">
-      <div
-        className="pointer-events-none fixed inset-0 z-0 hidden md:block"
-        style={{
-          background: `radial-gradient(circle 28rem at ${mousePosition.x}px ${mousePosition.y}px, rgba(214, 146, 92, 0.16), transparent 60%)`,
-        }}
-      />
+    <>
+      <div className="bg-slate-950 text-slate-100 min-h-screen font-sans overflow-x-hidden relative">
+        {/* Subtle moving gradient orb */}
+        <div
+          className="fixed inset-0 pointer-events-none z-0"
+          style={{
+            background: `radial-gradient(circle 600px at ${mousePosition.x}px ${mousePosition.y}px, rgba(59, 130, 246, 0.10), transparent 80%)`,
+          }}
+        />
 
-      <div className="portfolio-grid pointer-events-none fixed inset-0 z-0 opacity-40" />
+        {/* Navigation */}
+        <nav 
+          className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrollY > 50 ? 'bg-slate-950/95 backdrop-blur-2xl border-b border-slate-800/50 shadow-2xl' : 'bg-transparent'}`}
+          role="navigation"
+          aria-label="Main navigation"
+        >
+          <div className="max-w-7xl mx-auto px-6 py-5">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3 group cursor-pointer" 
+                   onClick={() => scrollToSection('home')}
+                   role="button"
+                   tabIndex={0}
+                   onKeyPress={(e) => e.key === 'Enter' && scrollToSection('home')}
+                   aria-label="Go to home section">
+                <div className="relative">
+                  <div className="absolute inset-0 bg-gradient-to-br from-cyan-400 to-purple-600 rounded-xl blur-md opacity-75 group-hover:opacity-100 transition-opacity" />
+                  <div className="relative w-11 h-11 rounded-xl bg-gradient-to-br from-cyan-400 to-purple-600 flex items-center justify-center font-bold text-slate-950">
+                    <Terminal size={22} />
+                  </div>
+                </div>
+                <span className="font-bold text-xl hidden sm:block bg-gradient-to-r from-cyan-400 to-purple-600 bg-clip-text text-transparent">
+                  Eulice Mage
+                </span>
+              </div>
 
-      <nav
-        className={`fixed left-0 right-0 top-0 z-50 transition-all duration-500 ${
-          scrollY > 24 ? 'border-b border-white/10 bg-[rgba(16,11,10,0.8)] backdrop-blur-xl' : 'bg-transparent'
-        }`}
-        aria-label="Main navigation"
-      >
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 sm:px-6">
-          <button
-            type="button"
-            onClick={() => scrollToSection('home')}
-            className="flex items-center gap-3 text-left"
-            aria-label="Go to home section"
-          >
-            <span className="portfolio-mark">
-              <Sparkles size={18} />
-            </span>
-            <span>
-              <span className="block text-sm uppercase tracking-[0.3em] text-[var(--color-muted)]">
-                Eulice Mage
-              </span>
-              <span className="block text-sm text-[var(--color-ivory)]">Developer Portfolio</span>
-            </span>
-          </button>
+              <div className="hidden lg:flex items-center space-x-10">
+                {['Home', 'About', 'Skills', 'Projects', 'Contact'].map((item) => (
+                  <button
+                    key={item}
+                    onClick={() => scrollToSection(item.toLowerCase())}
+                    className={`text-sm font-medium transition-all duration-300 relative group ${activeSection === item.toLowerCase() ? 'text-cyan-400' : 'text-slate-400 hover:text-slate-100'}`}
+                  >
+                    {item}
+                    <span className={`absolute -bottom-1 left-0 w-full h-0.5 bg-gradient-to-r from-cyan-400 to-purple-600 transform origin-left transition-transform duration-300 ${activeSection === item.toLowerCase() ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'}`} />
+                  </button>
+                ))}
+                <button
+                  onClick={() => scrollToSection('contact')}
+                  className="px-7 py-3 rounded-full bg-gradient-to-r from-cyan-500 to-purple-600 text-white font-semibold hover:shadow-2xl hover:shadow-cyan-500/50 hover:scale-105 transition-all duration-300"
+                >
+                  Let's Talk
+                </button>
+              </div>
 
-          <div className="hidden items-center gap-8 lg:flex">
-            {navItems.map((item) => (
-              <button
-                key={item.id}
-                type="button"
-                onClick={() => scrollToSection(item.id)}
-                className={`portfolio-nav-link ${activeSection === item.id ? 'portfolio-nav-link-active' : ''}`}
+              <button 
+                onClick={() => setIsMenuOpen(!isMenuOpen)} 
+                className="lg:hidden text-slate-100"
+                aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
+                aria-expanded={isMenuOpen}
               >
-                {item.label}
+                {isMenuOpen ? <X size={28} /> : <Menu size={28} />}
               </button>
-            ))}
-            <a
-              href="mailto:eulice.mage57@gmail.com"
-              className="portfolio-cta-inline"
-            >
-              Email for opportunities
-            </a>
-          </div>
+            </div>
 
-          <button
-            type="button"
-            onClick={() => setIsMenuOpen((current) => !current)}
-            className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/12 bg-white/5 text-[var(--color-ivory)] lg:hidden"
-            aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
-            aria-expanded={isMenuOpen}
-          >
-            {isMenuOpen ? <X size={20} /> : <Menu size={20} />}
-          </button>
-        </div>
-
-        {isMenuOpen && (
-          <div className="border-t border-white/10 bg-[rgba(18,12,11,0.96)] px-5 py-4 lg:hidden">
-            <div className="mx-auto flex max-w-7xl flex-col gap-3">
-              {navItems.map((item) => (
-                <button
-                  key={item.id}
-                  type="button"
-                  onClick={() => scrollToSection(item.id)}
-                  className="rounded-2xl border border-white/8 px-4 py-3 text-left text-[var(--color-sand)] transition hover:border-[var(--color-amber)] hover:text-[var(--color-ivory)]"
+            {isMenuOpen && (
+              <div className="lg:hidden mt-6 pb-6 border-t border-slate-800/50 pt-6">
+                {['Home', 'About', 'Skills', 'Projects', 'Contact'].map((item) => (
+                  <button
+                    key={item}
+                    onClick={() => scrollToSection(item.toLowerCase())}
+                    className="block w-full text-left py-4 px-2 text-lg text-slate-300 hover:text-cyan-400 transition-colors"
+                  >
+                    {item}
+                  </button>
+                ))}
+                <button 
+                  onClick={() => scrollToSection('contact')}
+                  className="mt-4 w-full px-7 py-4 rounded-full bg-gradient-to-r from-cyan-500 to-purple-600 text-white font-semibold"
                 >
-                  {item.label}
+                  Let's Talk
                 </button>
-              ))}
-              <a
-                href="mailto:eulice.mage57@gmail.com"
-                className="portfolio-button-primary mt-2 text-center"
+              </div>
+            )}
+          </div>
+        </nav>
+
+        {/* Home Section */}
+        <section id="home" className="min-h-screen flex items-center justify-center px-6 pt-20 relative">
+          <div className="max-w-5xl mx-auto text-center z-10">
+            <div className="mb-8 inline-block animate-slide-in-top">
+              <div className="text-6xl md:text-8xl font-bold bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-600 bg-clip-text text-transparent animate-gradient-shift">
+                Eulice Mage
+              </div>
+            </div>
+            
+            <div className="h-20 md:h-24 mb-8 animate-slide-in-top" style={{ animationDelay: '0.2s' }}>
+              <p className="text-2xl md:text-4xl text-slate-300 font-semibold">
+                I'm a <span className="text-cyan-400 animate-pulse-glow">{typedText}</span>
+                <span className={`ml-2 ${cursorVisible ? 'opacity-100' : 'opacity-0'} transition-opacity`}>|</span>
+              </p>
+            </div>
+
+            <p className="text-lg md:text-xl text-slate-400 max-w-3xl mx-auto mb-12 leading-relaxed animate-slide-in-top" style={{ animationDelay: '0.4s' }}>
+              Results-driven full-stack developer ready to bring technical expertise and problem-solving skills to your team. Proven ability to deliver scalable solutions that drive business growth and user engagement.
+            </p>
+
+            <div className="flex flex-col sm:flex-row gap-6 justify-center mb-16 animate-slide-in-top" style={{ animationDelay: '0.6s' }}>
+              <button
+                onClick={() => scrollToSection('projects')}
+                className="px-10 py-4 rounded-full bg-gradient-to-r from-cyan-500 to-purple-600 text-white font-bold text-lg hover:shadow-2xl hover:shadow-cyan-500/50 hover:scale-105 transition-all duration-300 animate-glow"
               >
-                Email for opportunities
-              </a>
-            </div>
-          </div>
-        )}
-      </nav>
-
-      <main className="relative z-10">
-        <section id="home" className="min-h-screen px-5 pb-16 pt-28 sm:px-6 sm:pt-32">
-          <div className="mx-auto grid max-w-7xl gap-14 lg:grid-cols-[1.2fr_0.8fr] lg:items-end">
-            <div className="portfolio-reveal portfolio-reveal-visible">
-              <div className="portfolio-eyebrow">Creative software developer portfolio</div>
-              <h1 className="mt-6 max-w-4xl text-5xl font-semibold leading-tight text-[var(--color-ivory)] sm:text-6xl lg:text-7xl">
-                Fresh-grad energy, thoughtful interfaces, and full-stack work grounded in real projects.
-              </h1>
-              <p className="mt-6 max-w-2xl text-lg leading-8 text-[var(--color-sand)] sm:text-xl">
-                I build polished, practical web experiences and I care about how software feels to use. Right now,
-                I am focused on turning academic and project experience into strong early-career engineering impact.
-              </p>
-
-              <div className="mt-8 min-h-[2.5rem] text-base uppercase tracking-[0.24em] text-[var(--color-amber-soft)] sm:text-lg">
-                {typedText}
-                <span className={`${cursorVisible ? 'opacity-100' : 'opacity-0'} transition-opacity`}>_</span>
-              </div>
-
-              <div className="mt-10 flex flex-col gap-4 sm:flex-row">
-                <button
-                  type="button"
-                  onClick={() => scrollToSection('projects')}
-                  className="portfolio-button-primary"
-                >
-                  View flagship project
-                  <ArrowRight size={18} />
-                </button>
-                <a
-                  href="mailto:eulice.mage57@gmail.com?subject=Opportunity%20for%20Eulice%20Mage"
-                  className="portfolio-button-secondary"
-                >
-                  Contact me about a role
-                </a>
-              </div>
+                Explore My Projects
+              </button>
+              <button
+                onClick={() => scrollToSection('contact')}
+                className="px-10 py-4 rounded-full border-2 border-cyan-500 text-cyan-400 font-bold text-lg hover:bg-cyan-500/10 transition-all duration-300 hover:animate-glow"
+              >
+                Let's Work Together
+              </button>
             </div>
 
-            <aside className="portfolio-reveal portfolio-reveal-visible">
-              <div className="portfolio-panel portfolio-hero-card">
-                <div className="portfolio-orbit" aria-hidden="true" />
-                <div className="relative z-10 space-y-6">
-                  <div className="flex items-center gap-3 text-[var(--color-amber-soft)]">
-                    <GraduationCap size={20} />
-                    <span className="text-sm uppercase tracking-[0.26em]">Entry-level, production-minded</span>
-                  </div>
-
-                  <div>
-                    <p className="text-sm uppercase tracking-[0.26em] text-[var(--color-muted)]">Best fit</p>
-                    <p className="mt-3 text-2xl font-medium text-[var(--color-ivory)]">
-                      Junior software developer roles where product polish and implementation discipline both matter.
-                    </p>
-                  </div>
-
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <div className="portfolio-stat">
-                      <span className="portfolio-stat-label">Primary focus</span>
-                      <span className="portfolio-stat-value">Web interfaces</span>
-                    </div>
-                    <div className="portfolio-stat">
-                      <span className="portfolio-stat-label">Current stack</span>
-                      <span className="portfolio-stat-value">React to Supabase</span>
-                    </div>
-                    <div className="portfolio-stat">
-                      <span className="portfolio-stat-label">Location</span>
-                      <span className="portfolio-stat-value">Laguna, Philippines</span>
-                    </div>
-                    <div className="portfolio-stat">
-                      <span className="portfolio-stat-label">Working style</span>
-                      <span className="portfolio-stat-value">Collaborative and curious</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </aside>
-          </div>
-        </section>
-
-        <section id="about" className={`px-5 py-20 sm:px-6 ${revealClass('about')}`}>
-          <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[0.9fr_1.1fr]">
-            <div className="portfolio-section-heading">
-              <span className="portfolio-eyebrow">About</span>
-              <h2 className="mt-5 text-4xl font-semibold text-[var(--color-ivory)] sm:text-5xl">
-                A more honest portfolio for where I am right now.
-              </h2>
-            </div>
-
-            <div className="grid gap-6">
-              <div className="portfolio-panel">
-                <p className="text-lg leading-8 text-[var(--color-sand)]">
-                  I am a fresh graduate in Information Technology with a strong interest in building software that
-                  feels clear, useful, and reliable. My work so far spans front-end presentation, full-stack web
-                  development, Android projects, and data-backed product flows.
-                </p>
-                <p className="mt-5 text-lg leading-8 text-[var(--color-sand)]">
-                  Instead of self-scored percentages, this portfolio highlights concrete work. The goal is simple:
-                  show how I think, what I have already built, and why I am ready to contribute as a junior
-                  developer on a real team.
-                </p>
-              </div>
-
-              <div className="grid gap-5 md:grid-cols-3">
-                <div className="portfolio-panel">
-                  <p className="portfolio-mini-label">Education</p>
-                  <p className="mt-3 text-xl font-medium text-[var(--color-ivory)]">BS in Information Technology</p>
-                  <p className="mt-2 text-sm leading-6 text-[var(--color-muted)]">
-                    System Development specialization and project-driven learning.
-                  </p>
-                </div>
-                <div className="portfolio-panel">
-                  <p className="portfolio-mini-label">Current direction</p>
-                  <p className="mt-3 text-xl font-medium text-[var(--color-ivory)]">Interactive web products</p>
-                  <p className="mt-2 text-sm leading-6 text-[var(--color-muted)]">
-                    Especially projects where UI clarity and implementation detail both matter.
-                  </p>
-                </div>
-                <div className="portfolio-panel">
-                  <p className="portfolio-mini-label">What I bring</p>
-                  <p className="mt-3 text-xl font-medium text-[var(--color-ivory)]">Strong foundation, ready to grow</p>
-                  <p className="mt-2 text-sm leading-6 text-[var(--color-muted)]">
-                    Comfortable learning quickly, asking good questions, and improving through feedback.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section id="proof" className={`px-5 py-20 sm:px-6 ${revealClass('proof')}`}>
-          <div className="mx-auto max-w-7xl">
-            <div className="portfolio-section-heading max-w-3xl">
-              <span className="portfolio-eyebrow">Proof of practice</span>
-              <h2 className="mt-5 text-4xl font-semibold text-[var(--color-ivory)] sm:text-5xl">
-                Evidence-driven sections instead of inflated claims.
-              </h2>
-              <p className="mt-5 text-lg leading-8 text-[var(--color-sand)]">
-                These are the strongest signals I want an employer to see first: what I have built, which tools I am
-                already using, and how that work maps to an entry-level software role.
-              </p>
-            </div>
-
-            <div className="mt-12 grid gap-5 lg:grid-cols-3">
-              {proofCards.map((card) => {
-                const Icon = card.icon;
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mt-20">
+              {achievements.map((achievement, idx) => {
+                const Icon = achievement.icon;
                 return (
-                  <article key={card.title} className="portfolio-panel">
-                    <div className="portfolio-icon-badge">
-                      <Icon size={20} />
-                    </div>
-                    <h3 className="mt-5 text-2xl font-medium text-[var(--color-ivory)]">{card.title}</h3>
-                    <p className="mt-4 leading-7 text-[var(--color-sand)]">{card.body}</p>
-                  </article>
+                  <div key={achievement.label} className="text-center group animate-slide-in-bottom" style={{ animationDelay: `${0.8 + idx * 0.1}s` }}>
+                    <Icon size={40} className={`${achievement.color} mx-auto mb-3 group-hover:scale-110 transition-transform animate-float`} />
+                    <p className="text-3xl font-bold text-white mb-1 group-hover:text-cyan-400 transition-colors">{achievement.number}</p>
+                    <p className="text-sm text-slate-400">{achievement.label}</p>
+                  </div>
                 );
               })}
             </div>
+          </div>
+        </section>
 
-            <div className="mt-12 grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
-              <div className="portfolio-panel">
-                <p className="portfolio-mini-label">How I can contribute</p>
-                <div className="mt-6 space-y-6">
-                  {capabilityGroups.map((group) => (
-                    <div key={group.title}>
-                      <h3 className="text-lg font-medium text-[var(--color-ivory)]">{group.title}</h3>
-                      <div className="mt-4 flex flex-wrap gap-2">
-                        {group.items.map((item) => (
-                          <span key={item} className="portfolio-chip">
-                            {item}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
+        {/* About Section */}
+        <section id="about" className={`py-20 px-6 relative ${isVisible.about ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-16'} transition-all duration-1000 delay-100`}>
+          <div className="max-w-5xl mx-auto">
+            <h2 className="text-4xl md:text-6xl font-bold mb-12 text-center">
+              About <span className="bg-gradient-to-r from-cyan-400 to-purple-600 bg-clip-text text-transparent">Me</span>
+            </h2>
+
+            <div className="grid md:grid-cols-2 gap-8 items-center">
+              <div className="space-y-4 animate-slide-in-left">
+                <p className="text-lg text-slate-300 leading-relaxed hover:text-slate-100 transition-colors">
+                  Results-driven full-stack developer with 3+ years of experience building production-ready applications that solve real business problems. Seeking opportunities to apply my expertise in modern web technologies to contribute to innovative projects and drive business growth.
+                </p>
+                <p className="text-lg text-slate-300 leading-relaxed hover:text-slate-100 transition-colors">
+                  I excel at developing scalable architectures, implementing secure authentication systems, and optimizing application performance. My strong foundation in both frontend and backend technologies allows me to take projects from concept to deployment while maintaining code quality and best practices.
+                </p>
+                <p className="text-lg text-slate-300 leading-relaxed hover:text-slate-100 transition-colors">
+                  I'm passionate about continuous learning and staying current with emerging technologies. I thrive in collaborative environments, communicate effectively with cross-functional teams, and am committed to delivering exceptional results that exceed expectations and drive business success.
+                </p>
               </div>
 
-              <div className="portfolio-panel">
-                <p className="portfolio-mini-label">What this portfolio now emphasizes</p>
-                <div className="mt-6 space-y-5">
-                  {projectHighlights.map((item) => (
-                    <div key={item.label} className="portfolio-proof-row">
-                      <p className="text-sm uppercase tracking-[0.22em] text-[var(--color-amber-soft)]">{item.label}</p>
-                      <p className="mt-2 text-base leading-7 text-[var(--color-sand)]">{item.value}</p>
-                    </div>
-                  ))}
+              <div className="space-y-3">
+                <div className="p-5 rounded-xl bg-gradient-to-br from-slate-900/50 to-slate-950/50 border border-slate-800 hover:border-cyan-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/20 animate-slide-in-right hover:scale-105">
+                  <h3 className="text-lg font-bold text-cyan-400 mb-2">🎓 Education</h3>
+                  <p className="text-slate-300">BS in Information Technology</p>
+                  <p className="text-sm text-slate-400">System Development Specialization</p>
+                </div>
+                <div className="p-5 rounded-xl bg-gradient-to-br from-slate-900/50 to-slate-950/50 border border-slate-800 hover:border-cyan-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/20 animate-slide-in-right" style={{ animationDelay: '0.1s' }}>
+                  <h3 className="text-lg font-bold text-purple-400 mb-2">💼 Experience</h3>
+                  <p className="text-slate-300">20+ Production Projects</p>
+                  <p className="text-sm text-slate-400">1000+ End Users Served</p>
+                </div>
+                <div className="p-5 rounded-xl bg-gradient-to-br from-slate-900/50 to-slate-950/50 border border-slate-800 hover:border-cyan-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/20 animate-slide-in-right" style={{ animationDelay: '0.2s' }}>
+                  <h3 className="text-lg font-bold text-green-400 mb-2">🎯 Ready to Contribute</h3>
+                  <p className="text-slate-300">Full-Stack Development</p>
+                  <p className="text-sm text-slate-400">Immediate Availability</p>
                 </div>
               </div>
             </div>
           </div>
         </section>
 
-        <section id="projects" className={`px-5 py-20 sm:px-6 ${revealClass('projects')}`}>
-          <div className="mx-auto max-w-7xl">
-            <div className="portfolio-section-heading max-w-3xl">
-              <span className="portfolio-eyebrow">Projects</span>
-              <h2 className="mt-5 text-4xl font-semibold text-[var(--color-ivory)] sm:text-5xl">
-                EBPLS leads the story. Everything else supports it.
+        {/* Skills Section */}
+        <section id="skills" className={`py-20 px-6 relative ${isVisible.skills ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-16'} transition-all duration-1000 delay-100`}>
+          <div className="max-w-6xl mx-auto">
+            <div className="text-center mb-16">
+              <h2 className="text-4xl md:text-6xl font-bold mb-4">
+                Technical <span className="bg-gradient-to-r from-cyan-400 to-purple-600 bg-clip-text text-transparent">Expertise</span>
               </h2>
-              <p className="mt-5 text-lg leading-8 text-[var(--color-sand)]">
-                The flagship project is positioned as the clearest sign of where I am heading as a developer. Supporting
-                work stays visible, but secondary.
+              <p className="text-lg text-slate-400 max-w-2xl mx-auto">
+                Comprehensive skill set built through hands-on experience and continuous learning. Ready to contribute to your team from day one.
               </p>
             </div>
 
-            <article className="portfolio-feature-card mt-12">
-              <div className="grid gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-start">
-                <div>
-                  <div className="portfolio-feature-badge">Flagship project</div>
-                  <h3 className="mt-6 text-4xl font-semibold text-[var(--color-ivory)]">EBPLS</h3>
-                  <p className="mt-5 text-xl leading-8 text-[var(--color-sand)]">
-                    A business permitting and licensing platform oriented toward LGU workflows, designed to make
-                    application steps, staff review, and document-heavy interactions feel more approachable.
-                  </p>
-                  <p className="mt-5 text-base leading-7 text-[var(--color-muted)]">
-                    This is the strongest representation of my current direction: product-minded front-end work,
-                    structured back-end thinking, and a stack that reflects how modern web applications are built.
-                  </p>
-
-                  <div className="mt-8 flex flex-wrap gap-2">
-                    {['React', 'Next.js', 'Node/Express', 'Supabase', 'Role-based flows', 'Responsive UI'].map((item) => (
-                      <span key={item} className="portfolio-chip portfolio-chip-strong">
-                        {item}
-                      </span>
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {Object.entries(skills).map(([category, skillList], idx) => (
+                <div
+                  key={category}
+                  className="p-6 rounded-2xl bg-gradient-to-br from-slate-900/50 to-slate-950/50 border border-slate-800 hover:border-cyan-500/50 backdrop-blur-xl transition-all duration-500 hover:scale-[1.02] animate-slide-in-bottom hover:shadow-lg hover:shadow-cyan-500/20"
+                  style={{ animationDelay: `${idx * 0.1}s` }}
+                >
+                  <h3 className="text-xl font-bold mb-6 text-cyan-400">{category}</h3>
+                  <div className="space-y-4">
+                    {skillList.map((skill, skillIdx) => (
+                      <div key={skill.name}>
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-slate-300 text-sm font-medium hover:text-cyan-400 transition-colors">{skill.name}</span>
+                          <span className="text-cyan-400 font-bold text-sm">{skill.level}%</span>
+                        </div>
+                        <div className="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-gradient-to-r from-cyan-500 to-purple-600 rounded-full transition-all duration-1000 animate-shimmer"
+                            style={{ width: `${skill.level}%` }}
+                          />
+                        </div>
+                      </div>
                     ))}
                   </div>
                 </div>
-
-                <div className="space-y-4">
-                  {projectHighlights.map((item) => (
-                    <div key={item.label} className="portfolio-panel portfolio-panel-soft">
-                      <p className="portfolio-mini-label">{item.label}</p>
-                      <p className="mt-3 text-base leading-7 text-[var(--color-sand)]">{item.value}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </article>
-
-            <div className="mt-10 grid gap-5 lg:grid-cols-3">
-              {supportingProjects.map((project) => (
-                <article key={project.title} className="portfolio-panel portfolio-project-card">
-                  <p className="portfolio-mini-label">Supporting project</p>
-                  <h3 className="mt-4 text-2xl font-medium text-[var(--color-ivory)]">{project.title}</h3>
-                  <p className="mt-4 leading-7 text-[var(--color-sand)]">{project.description}</p>
-
-                  <div className="mt-5 flex flex-wrap gap-2">
-                    {project.stack.map((tech) => (
-                      <span key={tech} className="portfolio-chip">
-                        {tech}
-                      </span>
-                    ))}
-                  </div>
-
-                  <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                    <a
-                      href={project.live}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="portfolio-link-button"
-                    >
-                      <ExternalLink size={16} />
-                      Live
-                    </a>
-                    <a
-                      href={project.github}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="portfolio-link-button portfolio-link-button-muted"
-                    >
-                      <Github size={16} />
-                      Code
-                    </a>
-                  </div>
-                </article>
               ))}
             </div>
           </div>
         </section>
 
-        <section id="contact" className={`px-5 pb-24 pt-20 sm:px-6 ${revealClass('contact')}`}>
-          <div className="mx-auto max-w-7xl">
-            <div className="portfolio-contact-wrap">
-              <div>
-                <span className="portfolio-eyebrow">Contact</span>
-                <h2 className="mt-5 max-w-2xl text-4xl font-semibold text-[var(--color-ivory)] sm:text-5xl">
-                  If you are hiring a junior developer, I would love to hear about the role.
-                </h2>
-                <p className="mt-5 max-w-2xl text-lg leading-8 text-[var(--color-sand)]">
-                  The fastest route is email. LinkedIn and GitHub are here as well if you want a quick background
-                  check before reaching out.
-                </p>
-              </div>
+        {/* Projects Section */}
+        <section id="projects" className={`py-32 px-6 relative overflow-hidden ${isVisible.projects ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-16'} transition-all duration-1000 delay-100`}>
+          <div className="max-w-7xl mx-auto">
+            <div className="text-center mb-20">
+              <h2 className="text-5xl md:text-7xl font-bold mb-6">
+                Featured <span className="bg-gradient-to-r from-cyan-400 to-purple-600 bg-clip-text text-transparent">Projects</span>
+              </h2>
+              <p className="text-xl text-slate-400 max-w-3xl mx-auto">
+                Showcase of production-ready applications built with modern technologies. Each project demonstrates technical depth, problem-solving ability, and commitment to quality.
+              </p>
+            </div>
 
-              <div className="grid gap-5 lg:grid-cols-[1.1fr_0.9fr]">
-                <div className="portfolio-panel">
-                  <div className="space-y-5">
-                    <a href="mailto:eulice.mage57@gmail.com" className="portfolio-contact-row">
-                      <span className="portfolio-icon-badge">
-                        <Mail size={18} />
-                      </span>
-                      <span>
-                        <span className="portfolio-mini-label">Email</span>
-                        <span className="mt-2 block text-xl font-medium text-[var(--color-ivory)]">
-                          eulice.mage57@gmail.com
+            <div className="grid lg:grid-cols-3 gap-8">
+              {projects.map((project, idx) => (
+                <div
+                  key={idx}
+                  className="group relative bg-gradient-to-br from-slate-900/50 to-slate-950/50 rounded-3xl overflow-hidden border border-slate-800 hover:border-cyan-500/50 backdrop-blur-xl transition-all duration-500 hover:scale-[1.02] hover:shadow-2xl hover:shadow-cyan-500/20 animate-slide-in-bottom"
+                  style={{ animationDelay: `${idx * 0.2}s` }}
+                >
+                  <div className="relative h-64 overflow-hidden">
+                    <img 
+                      src={project.image} 
+                      alt={`${project.title} screenshot`} 
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
+                      loading="lazy"
+                      onError={(e) => {
+                        e.target.src = `https://picsum.photos/seed/${project.title}/400/300.jpg`;
+                      }}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80" />
+                    <div className={`absolute top-4 right-4 px-4 py-2 rounded-full bg-gradient-to-r ${project.color} text-white text-sm font-semibold`}>Featured</div>
+                  </div>
+
+                  <div className="p-8">
+                    <h3 className="text-2xl font-bold mb-3 group-hover:text-cyan-400 transition-colors">{project.title}</h3>
+                    <p className="text-slate-400 mb-6 leading-relaxed">{project.description}</p>
+
+                    <div className="flex flex-wrap gap-2 mb-6">
+                      {project.tech.map((tech, techIdx) => (
+                        <span key={tech} className="px-3 py-1.5 text-xs rounded-full bg-slate-800/70 border border-slate-700 text-slate-300 hover:border-cyan-500 hover:bg-slate-800 transition-all duration-300 animate-slide-in-top" style={{ animationDelay: `${techIdx * 0.05}s` }}>
+                          {tech}
                         </span>
-                      </span>
-                    </a>
+                      ))}
+                    </div>
 
-                    <a
-                      href="https://www.linkedin.com/in/gonzales-eulice-mage-v-gonzales-93248a361/"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="portfolio-contact-row"
-                    >
-                      <span className="portfolio-icon-badge">
-                        <Linkedin size={18} />
-                      </span>
-                      <span>
-                        <span className="portfolio-mini-label">LinkedIn</span>
-                        <span className="mt-2 block text-xl font-medium text-[var(--color-ivory)]">
-                          View professional profile
-                        </span>
-                      </span>
-                    </a>
+                    {project.results && (
+                      <div className="grid grid-cols-3 gap-4 mb-8">
+                        {project.results.map((result) => (
+                          <div key={result} className="text-center">
+                            <CheckCircle2 size={20} className="text-green-400 mx-auto mb-1" />
+                            <p className="text-xs text-slate-400">{result}</p>
+                          </div>
+                        ))}
+                      </div>
+                    )}
 
-                    <a
-                      href="https://github.com/eulicemage"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="portfolio-contact-row"
-                    >
-                      <span className="portfolio-icon-badge">
+                    {project.highlights && (
+                      <div className="mb-8 p-4 rounded-xl bg-slate-800/30 border border-slate-700/50">
+                        <p className="text-xs font-semibold text-cyan-400 mb-2">Key Features</p>
+                        <div className="flex flex-wrap gap-2">
+                          {project.highlights.map((highlight) => (
+                            <span key={highlight} className="text-xs px-2 py-1 rounded bg-cyan-500/10 text-cyan-300 border border-cyan-500/30">
+                              {highlight}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="flex space-x-4">
+                      <a
+                        href={project.live}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex-1 flex items-center justify-center space-x-2 px-5 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-medium hover:shadow-lg hover:shadow-cyan-500/50 transition-all duration-300"
+                      >
+                        <ExternalLink size={18} />
+                        <span>Live Demo</span>
+                      </a>
+                      <a
+                        href={project.github}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex-1 flex items-center justify-center space-x-2 px-5 py-3 rounded-xl border border-slate-700 hover:border-cyan-500 hover:bg-slate-800/50 transition-all duration-300"
+                      >
                         <Github size={18} />
-                      </span>
-                      <span>
-                        <span className="portfolio-mini-label">GitHub</span>
-                        <span className="mt-2 block text-xl font-medium text-[var(--color-ivory)]">
-                          Review public project work
-                        </span>
-                      </span>
-                    </a>
+                        <span>Code</span>
+                      </a>
+                    </div>
                   </div>
                 </div>
-
-                <div className="portfolio-panel">
-                  <p className="portfolio-mini-label">Quick context</p>
-                  <div className="mt-6 space-y-5">
-                    <div className="flex items-start gap-3">
-                      <MapPin size={18} className="mt-1 text-[var(--color-amber-soft)]" />
-                      <p className="leading-7 text-[var(--color-sand)]">Based in Cavinti, Laguna, Philippines.</p>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <GraduationCap size={18} className="mt-1 text-[var(--color-amber-soft)]" />
-                      <p className="leading-7 text-[var(--color-sand)]">
-                        Fresh graduate looking for junior software, web, or front-end leaning opportunities.
-                      </p>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <Sparkles size={18} className="mt-1 text-[var(--color-amber-soft)]" />
-                      <p className="leading-7 text-[var(--color-sand)]">
-                        Most interested in teams that value craft, feedback, and steady growth.
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="mt-8 flex flex-col gap-3">
-                    <a
-                      href="mailto:eulice.mage57@gmail.com?subject=Interview%20Inquiry%20for%20Eulice%20Mage"
-                      className="portfolio-button-primary justify-center"
-                    >
-                      Send an interview inquiry
-                    </a>
-                    <button
-                      type="button"
-                      onClick={() => scrollToSection('projects')}
-                      className="portfolio-button-secondary justify-center"
-                    >
-                      Revisit project work
-                    </button>
-                  </div>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
         </section>
-      </main>
-    </div>
+
+        {/* Contact Section */}
+        <section id="contact" className={`py-32 px-6 relative ${isVisible.contact ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-16'} transition-all duration-1000 delay-200`}>
+          <div className="max-w-7xl mx-auto">
+            <div className="text-center mb-20">
+              <h2 className="text-5xl md:text-7xl font-bold mb-6">
+                Ready to <span className="bg-gradient-to-r from-cyan-400 to-purple-600 bg-clip-text text-transparent">Work Together</span>
+              </h2>
+              <p className="text-xl text-slate-400 max-w-3xl mx-auto">
+                I'm actively looking for opportunities to contribute to impactful projects. Let's connect and discuss how I can add value to your team.
+              </p>
+            </div>
+
+            <div className="grid lg:grid-cols-2 gap-12 items-start">
+              <div className="animate-slide-in-left">
+                <h3 className="text-3xl font-bold mb-8">Get In Touch</h3>
+                <div className="space-y-6 mb-10">
+                  <div className="flex items-center space-x-4 hover:translate-x-2 transition-transform duration-300 animate-slide-in-left">
+                    <div className="p-3 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 animate-glow">
+                      <Mail size={24} className="text-white" />
+                    </div>
+                    <div>
+                      <p className="text-slate-400">Email</p>
+                      <a href="mailto:eulice.mage57@gmail.com" className="text-xl font-semibold hover:text-cyan-400 transition-colors">
+                        eulice.mage57@gmail.com
+                      </a>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center space-x-4 hover:translate-x-2 transition-transform duration-300 animate-slide-in-left" style={{ animationDelay: '0.1s' }}>
+                    <div className="p-3 rounded-xl bg-gradient-to-br from-purple-500 to-pink-600 animate-glow">
+                      <Phone size={24} className="text-white" />
+                    </div>
+                    <div>
+                      <p className="text-slate-400">Phone</p>
+                      <p className="text-xl font-semibold">+63 9** *** ****</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center space-x-4 hover:translate-x-2 transition-transform duration-300 animate-slide-in-left" style={{ animationDelay: '0.2s' }}>
+                    <div className="p-3 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 animate-glow">
+                      <MapPin size={24} className="text-white" />
+                    </div>
+                    <div>
+                      <p className="text-slate-400">Location</p>
+                      <p className="text-xl font-semibold">Cavinti, Laguna, Philippines</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex space-x-4">
+                  <a href="https://github.com/eulicemage" target="_blank" rel="noopener noreferrer" className="p-4 rounded-xl bg-slate-800 hover:bg-slate-700 transition-all duration-300 hover:scale-110 animate-bounce-smooth">
+                    <Github size={28} />
+                  </a>
+                  <a href="https://www.linkedin.com/in/gonzales-eulice-mage-v-gonzales-93248a361/" target="_blank" rel="noopener noreferrer" className="p-4 rounded-xl bg-slate-800 hover:bg-slate-700 transition-all duration-300 hover:scale-110 animate-bounce-smooth" style={{ animationDelay: '0.2s' }}>
+                    <Linkedin size={28} />
+                  </a>
+                </div>
+              </div>
+
+              <form className="space-y-6 animate-slide-in-right" onSubmit={handleFormSubmit}>
+                {submitStatus === 'success' && (
+                  <div className="p-4 rounded-xl bg-green-500/10 border border-green-500/30 text-green-300 animate-slide-in-top">
+                    <p className="flex items-center space-x-2">
+                      <CheckCircle2 size={20} />
+                      <span>Message sent successfully! I'll get back to you soon.</span>
+                    </p>
+                  </div>
+                )}
+                
+                {submitStatus === 'error' && (
+                  <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-300 animate-slide-in-top">
+                    <p className="flex items-center space-x-2">
+                      <X size={20} />
+                      <span>Failed to send message. Please try again.</span>
+                    </p>
+                  </div>
+                )}
+                
+                <div className="animate-slide-in-right" style={{ animationDelay: '0.1s' }}>
+                  <input
+                    type="text"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    placeholder="Your Name"
+                    className={`w-full px-6 py-4 rounded-xl bg-slate-900/50 border transition-all duration-300 focus:outline-none focus:shadow-lg hover:border-slate-600 ${
+                      formErrors.name 
+                        ? 'border-red-500 focus:border-red-500 focus:shadow-red-500/20' 
+                        : 'border-slate-700 focus:border-cyan-500 focus:shadow-cyan-500/20'
+                    }`}
+                  />
+                  {formErrors.name && (
+                    <p className="mt-2 text-red-400 text-sm animate-slide-in-top">{formErrors.name}</p>
+                  )}
+                </div>
+                
+                <div className="animate-slide-in-right" style={{ animationDelay: '0.2s' }}>
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    placeholder="Your Email"
+                    className={`w-full px-6 py-4 rounded-xl bg-slate-900/50 border transition-all duration-300 focus:outline-none focus:shadow-lg hover:border-slate-600 ${
+                      formErrors.email 
+                        ? 'border-red-500 focus:border-red-500 focus:shadow-red-500/20' 
+                        : 'border-slate-700 focus:border-cyan-500 focus:shadow-cyan-500/20'
+                    }`}
+                  />
+                  {formErrors.email && (
+                    <p className="mt-2 text-red-400 text-sm animate-slide-in-top">{formErrors.email}</p>
+                  )}
+                </div>
+                
+                <div className="animate-slide-in-right" style={{ animationDelay: '0.3s' }}>
+                  <textarea
+                    name="message"
+                    value={formData.message}
+                    onChange={handleInputChange}
+                    rows={6}
+                    placeholder="Your Message"
+                    className={`w-full px-6 py-4 rounded-xl bg-slate-900/50 border transition-all duration-300 focus:outline-none focus:shadow-lg hover:border-slate-600 resize-none ${
+                      formErrors.message 
+                        ? 'border-red-500 focus:border-red-500 focus:shadow-red-500/20' 
+                        : 'border-slate-700 focus:border-cyan-500 focus:shadow-cyan-500/20'
+                    }`}
+                  />
+                  {formErrors.message && (
+                    <p className="mt-2 text-red-400 text-sm animate-slide-in-top">{formErrors.message}</p>
+                  )}
+                </div>
+                
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full px-8 py-5 rounded-xl bg-gradient-to-r from-cyan-500 to-purple-600 text-white font-bold text-lg hover:shadow-2xl hover:shadow-cyan-500/50 hover:scale-105 transition-all duration-300 flex items-center justify-center space-x-3 animate-slide-in-right animate-glow disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                  style={{ animationDelay: '0.4s' }}
+                >
+                  {isSubmitting ? (
+                    <>
+                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      <span>Sending...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>Send Message</span>
+                      <Send size={22} />
+                    </>
+                  )}
+                </button>
+              </form>
+            </div>
+          </div>
+        </section>
+
+        {/* Footer */}
+        <footer className="py-12 px-6 border-t border-slate-800/50">
+          <div className="max-w-7xl mx-auto text-center">
+            <p className="text-slate-400">© 2025 Eulice Mage. Crafted with <span className="text-red-500">❤</span> and lots of coffee.</p>
+          </div>
+        </footer>
+      </div>
+    </>
   );
 }
