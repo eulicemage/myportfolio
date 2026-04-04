@@ -1,825 +1,844 @@
-// src/components/Portfolio.jsx
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import {
-  Github,
-  Mail,
-  ExternalLink,
-  Code2,
-  Menu,
-  X,
-  CheckCircle2,
-  TrendingUp,
-  Users,
-  Zap,
-  Terminal,
-  Send,
-  MapPin,
-  Phone,
-  Linkedin,
+  ArrowRight, Briefcase, CheckCircle2, Code2, ExternalLink,
+  Github, Layers3, Linkedin, Mail, MapPin, Menu, Server, X,
+  Sparkles, Terminal, Globe, Database,
 } from 'lucide-react';
 
-export default function Portfolio() {
-  const [scrollY, setScrollY] = useState(0);
-  const [activeSection, setActiveSection] = useState('home');
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [typedText, setTypedText] = useState('');
-  const [cursorVisible, setCursorVisible] = useState(true);
-  const [isVisible, setIsVisible] = useState({});
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    message: ''
-  });
-  const [formErrors, setFormErrors] = useState({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState('');
+/* ─────────────────────────────────────────────
+   DATA
+───────────────────────────────────────────── */
+const navigationItems = [
+  { id: 'home', label: 'Home' },
+  { id: 'about', label: 'About' },
+  { id: 'stack', label: 'Stack' },
+  { id: 'projects', label: 'Projects' },
+  { id: 'contact', label: 'Contact' },
+];
 
-  const roles = [
-    'Software Developer',
-    'Web Developer',
-    'Aspiring Developer',
-    'Tech Enthusiast',
-  ];
-  const [currentRoleIndex, setCurrentRoleIndex] = useState(0);
+const heroSignals = [
+  { label: 'Degree', value: 'BS Information Technology' },
+  { label: 'Focus', value: 'Web Apps & Workflow Systems' },
+  { label: 'Status', value: 'Open to Opportunities', highlight: true },
+];
 
-  // refs for typing animation and lifecycle
-  const typingTimeoutRef = useRef(null);
-  const isMountedRef = useRef(true);
-  const charIndexRef = useRef(0);
-  const isDeletingRef = useRef(false);
+const proofSections = [
+  {
+    title: 'Frontend Delivery',
+    icon: Layers3,
+    accent: '#38bdf8',
+    emoji: '🎨',
+    points: [
+      'Builds responsive interfaces with React, Next.js, Tailwind CSS, and modern JavaScript.',
+      'Translates requirements into clear layouts, reusable UI sections, and practical user flows.',
+      'Prioritizes readable structure, accessibility basics, and mobile-ready presentation.',
+    ],
+  },
+  {
+    title: 'Backend & Data',
+    icon: Server,
+    accent: '#a78bfa',
+    emoji: '⚙️',
+    points: [
+      'Works with Node.js, Express, Supabase, Firebase, MySQL, and REST-style APIs.',
+      'Implements authentication, CRUD workflows, and data-backed dashboards.',
+      'Comfortable connecting frontend features to database-driven business logic.',
+    ],
+  },
+  {
+    title: 'Project Execution',
+    icon: Briefcase,
+    accent: '#34d399',
+    emoji: '🚀',
+    points: [
+      'Builds from real projects that required shipping usable software, not demo-only concepts.',
+      'Documents features through project summaries, live links, and public repositories.',
+      'Coachable, reliable, and ready to contribute on a structured team.',
+    ],
+  },
+];
 
-  // Mouse follow effect (SSR-safe)
+const technicalGroups = [
+  {
+    title: 'Frontend', icon: Globe, color: '#38bdf8',
+    items: ['React', 'Next.js', 'JavaScript', 'Tailwind CSS', 'HTML5 & CSS3', 'Responsive UI'],
+  },
+  {
+    title: 'Backend', icon: Terminal, color: '#a78bfa',
+    items: ['Node.js', 'Express', 'Laravel', 'REST APIs', 'PHP'],
+  },
+  {
+    title: 'Data & Cloud', icon: Database, color: '#34d399',
+    items: ['Supabase', 'Firebase', 'MySQL', 'Cloud Firestore'],
+  },
+  {
+    title: 'Mobile & Tools', icon: Code2, color: '#fb923c',
+    items: ['Android Studio', 'Java', 'Git & GitHub', 'Figma', 'RFID Integration'],
+  },
+];
+
+const projects = [
+  {
+    title: 'EBPLS',
+    type: 'Featured Project',
+    badge: 'LGU Workflow Platform',
+    description: 'A local government–oriented Electronic Business Permit and Licensing System designed to support permit application workflows, staff review, and status tracking. This reflects the kind of practical software I want to keep building: systems that improve public-facing processes and internal operations.',
+    details: [
+      'Built with React and Next.js on the frontend for structured, maintainable UI flows.',
+      'Used Node.js and Express for API-driven backend logic and workflow handling.',
+      'Integrated Supabase for managed data storage, authentication, and real-time foundations.',
+    ],
+    tech: ['React', 'Next.js', 'Node.js', 'Express', 'Supabase'],
+    live: null, github: null,
+  },
+  {
+    title: 'LU BAO Merchandise',
+    type: 'Supporting',
+    description: 'Android merchandise management and ordering app with Firebase-backed authentication and cloud data synchronization.',
+    details: ['Inventory and ordering workflows in a mobile-first setting.', 'Java, XML layouts, Firebase Auth, and Cloud Firestore.'],
+    tech: ['Android Studio', 'Java', 'Firebase', 'Cloud Firestore', 'XML'],
+    live: 'https://play.google.com/store/apps/details?id=com.gonzales.baomerchandise&hl=en',
+    github: 'https://github.com/eulicemage/LU-BAO-Merchandise',
+  },
+  {
+    title: 'Rockies Fitness',
+    type: 'Supporting',
+    description: 'Gym operations platform combining a web dashboard, mobile app, and RFID-based attendance monitoring.',
+    details: ['Connected admin and member workflows across web and mobile.', 'Laravel, MySQL, Android Studio, Firebase, and hardware attendance tracking.'],
+    tech: ['Laravel', 'MySQL', 'Android Studio', 'Java', 'Firebase', 'RFID'],
+    live: 'https://www.rockiesfitnessph.com/landing',
+    github: 'https://github.com/jimdmnc/FitTrack',
+  },
+  {
+    title: 'Floral Haven',
+    type: 'Supporting',
+    description: 'Responsive storefront built with core frontend technologies and emphasis on clean browsing experience.',
+    details: ['Pure HTML, CSS, and JavaScript implementation.', 'Responsive layout, client-side interactivity, and visual polish.'],
+    tech: ['HTML', 'CSS', 'JavaScript'],
+    live: 'https://flowers-shop-project.netlify.app/',
+    github: 'https://github.com/eulicemage/floral-haven',
+  },
+];
+
+/* ─────────────────────────────────────────────
+   PARTICLE CANVAS
+───────────────────────────────────────────── */
+function ParticleCanvas({ mouseRef }) {
+  const canvasRef = useRef(null);
+  const animRef = useRef(null);
+  const ptsRef = useRef([]);
+
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const handleMouseMove = (e) => {
-      setMousePosition({ x: e.clientX, y: e.clientY });
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let W, H;
+
+    const resize = () => {
+      W = canvas.width = window.innerWidth;
+      H = canvas.height = window.innerHeight;
+      initPts();
     };
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, []);
 
-  // Typing animation (pure JS)
-  useEffect(() => {
-    isMountedRef.current = true;
+    const initPts = () => {
+      const n = Math.floor((W * H) / 18000);
+      ptsRef.current = Array.from({ length: n }, () => ({
+        x: Math.random() * W, y: Math.random() * H,
+        vx: (Math.random() - 0.5) * 0.18,
+        vy: (Math.random() - 0.5) * 0.18,
+        r: Math.random() * 1.2 + 0.3,
+        hue: Math.random() < 0.5 ? 190 : 270,
+      }));
+    };
 
-    const startTyping = () => {
-      const role = roles[currentRoleIndex];
+    resize();
+    window.addEventListener('resize', resize);
 
-      const tick = () => {
-        if (!isMountedRef.current) return;
+    const draw = () => {
+      ctx.clearRect(0, 0, W, H);
+      const pts = ptsRef.current;
+      const mx = mouseRef.current.x;
+      const my = mouseRef.current.y;
 
-        if (!isDeletingRef.current) {
-          charIndexRef.current += 1;
-          if (charIndexRef.current <= role.length) {
-            setTypedText(role.substring(0, charIndexRef.current));
-            typingTimeoutRef.current = setTimeout(tick, 100);
-            return;
+      for (let i = 0; i < pts.length; i++) {
+        const p = pts[i];
+        p.x += p.vx; p.y += p.vy;
+        if (p.x < 0) p.x = W; if (p.x > W) p.x = 0;
+        if (p.y < 0) p.y = H; if (p.y > H) p.y = 0;
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = `hsla(${p.hue},80%,70%,0.5)`;
+        ctx.fill();
+
+        for (let j = i + 1; j < pts.length; j++) {
+          const q = pts[j];
+          const dx = p.x - q.x, dy = p.y - q.y;
+          const d = Math.sqrt(dx * dx + dy * dy);
+          if (d < 110) {
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y); ctx.lineTo(q.x, q.y);
+            ctx.strokeStyle = `hsla(${(p.hue + q.hue) / 2},70%,70%,${(1 - d / 110) * 0.15})`;
+            ctx.lineWidth = 0.5; ctx.stroke();
           }
-          // pause then delete
-          typingTimeoutRef.current = setTimeout(() => {
-            isDeletingRef.current = true;
-            typingTimeoutRef.current = setTimeout(tick, 80);
-          }, 1400);
-        } else {
-          charIndexRef.current -= 1;
-          if (charIndexRef.current >= 0) {
-            setTypedText(role.substring(0, charIndexRef.current));
-            typingTimeoutRef.current = setTimeout(tick, 50);
-            return;
-          }
-          // finished deleting -> next role
-          isDeletingRef.current = false;
-          charIndexRef.current = 0;
-          setCurrentRoleIndex((prev) => (prev + 1) % roles.length);
         }
-      };
 
-      // reset and start
-      charIndexRef.current = 0;
-      isDeletingRef.current = false;
-      if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
-      typingTimeoutRef.current = setTimeout(tick, 500);
+        // mouse repel
+        const dx = p.x - mx, dy = p.y - my;
+        const d = Math.sqrt(dx * dx + dy * dy);
+        if (d < 120) {
+          const f = ((120 - d) / 120) * 0.4;
+          p.vx += (dx / d) * f; p.vy += (dy / d) * f;
+        }
+        const sp = Math.sqrt(p.vx * p.vx + p.vy * p.vy);
+        if (sp > 0.6) { p.vx = (p.vx / sp) * 0.6; p.vy = (p.vy / sp) * 0.6; }
+      }
+      animRef.current = requestAnimationFrame(draw);
     };
-
-    startTyping();
+    draw();
 
     return () => {
-      isMountedRef.current = false;
-      if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+      window.removeEventListener('resize', resize);
+      cancelAnimationFrame(animRef.current);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentRoleIndex]);
+  }, [mouseRef]);
 
-  // Cursor blink
+  return (
+    <canvas
+      ref={canvasRef}
+      style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none' }}
+    />
+  );
+}
+
+/* ─────────────────────────────────────────────
+   CUSTOM CURSOR
+───────────────────────────────────────────── */
+function CustomCursor({ mouseRef }) {
+  const dotRef = useRef(null);
+  const ringRef = useRef(null);
+  const ringPos = useRef({ x: 0, y: 0 });
+  const rafRef = useRef(null);
+
   useEffect(() => {
-    const cursorInterval = setInterval(() => {
-      setCursorVisible((prev) => !prev);
-    }, 530);
-    return () => clearInterval(cursorInterval);
-  }, []);
-
-  // Scroll handling + Intersection Observer (SSR-safe)
-  useEffect(() => {
-    if (typeof window === 'undefined' || typeof document === 'undefined') return;
-
-    const handleScroll = () => {
-      const y = window.scrollY;
-      setScrollY(y);
-
-      const sections = ['home', 'about', 'skills', 'projects', 'contact'];
-      const current = sections.find((section) => {
-        const el = document.getElementById(section);
-        if (el) {
-          const rect = el.getBoundingClientRect();
-          return rect.top <= 150 && rect.bottom >= 150;
-        }
-        return false;
-      });
-      if (current) setActiveSection(current);
+    const loop = () => {
+      const { x, y } = mouseRef.current;
+      ringPos.current.x += (x - ringPos.current.x) * 0.18;
+      ringPos.current.y += (y - ringPos.current.y) * 0.18;
+      if (dotRef.current) {
+        dotRef.current.style.left = `${x - 6}px`;
+        dotRef.current.style.top = `${y - 6}px`;
+      }
+      if (ringRef.current) {
+        ringRef.current.style.left = `${ringPos.current.x - 18}px`;
+        ringRef.current.style.top = `${ringPos.current.y - 18}px`;
+      }
+      rafRef.current = requestAnimationFrame(loop);
     };
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting && entry.target.id) {
-            setIsVisible((prev) => ({ ...prev, [entry.target.id]: true }));
-          }
-        });
-      },
-      { threshold: 0.1, rootMargin: '0px 0px -100px 0px' }
-    );
-
-    document.querySelectorAll('section[id]').forEach((section) => {
-      observer.observe(section);
-    });
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    handleScroll();
-
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      observer.disconnect();
-    };
-  }, []);
-
-  const scrollToSection = (id) => {
-    if (typeof document === 'undefined') return;
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
-    setIsMenuOpen(false);
-  };
-
-  const projects = [
-    {
-      title: 'LU BAO Merchandise',
-      description:
-        'Android-based merchandise management and ordering application built for LU BAO. Features Firebase-backed authentication, real-time data synchronization, and a clean XML-based UI. Demonstrates mobile app development skills using Java and Firebase for scalable, production-ready solutions.',
-      tech: ['Android Studio', 'Java', 'Firebase', 'Firebase Authentication', 'Cloud Firestore', 'XML'],
-      image: '/images/lu-bao-merchandise.png',
-      results: ['Real-time Sync', 'Secure Login', 'Cloud-Based Data'],
-      live: 'https://play.google.com/store/apps/details?id=com.gonzales.baomerchandise&hl=en',
-      github: 'https://github.com/eulicemage/LU-BAO-Merchandise',
-      color: 'from-purple-500 to-pink-600',
-      highlights: ['Firebase Integration', 'Android UI with XML', 'Real-time Database']
-    },
-    {
-      title: 'Rockies Fitness',
-      description:
-        'Integrated gym management system consisting of a web admin dashboard, Android mobile app, and RFID-based attendance hardware. The system enables real-time member monitoring, workout and calorie tracking, automated attendance logging, and centralized gym management. Designed to support both gym administrators and members with a seamless, data-driven experience.',
-      tech: [
-        'Laravel',
-        'MySQL',
-        'Tailwind CSS',
-        'AJAX',
-        'Android Studio',
-        'Java',
-        'Firebase',
-        'RFID Hardware Integration'
-      ],
-      image: '/images/rockies-fitness.png',
-      results: [
-        'Web & Mobile Integration',
-        'Automated Attendance Tracking',
-        'Real-time Member Monitoring'
-      ],
-      live: 'https://www.rockiesfitnessph.com/landing',
-      github: 'https://github.com/jimdmnc/FitTrack',
-      color: 'from-orange-500 to-red-600',
-      highlights: [
-        'Admin Web Dashboard',
-        'Android App for Members',
-        'Workout & Calorie Tracking',
-        'RFID-Based Attendance System'
-      ]
-    },
-    {
-      title: 'Floral Haven',
-      description:
-        'Responsive flower shop website designed to showcase products and provide a smooth browsing experience. Built using pure HTML, CSS, and JavaScript, featuring dynamic product displays, interactive UI elements, and clean, user-friendly design.',
-      tech: ['HTML', 'CSS', 'JavaScript'],
-      image: '/images/floral-haven.png',
-      results: ['Responsive Design', 'Interactive UI', 'Fast Load Time'],
-      live: 'https://flowers-shop-project.netlify.app/',
-      github: 'https://github.com/eulicemage/floral-haven',
-      color: 'from-cyan-500 to-blue-600',
-      highlights: ['Dynamic Product Display', 'Client-Side Interactivity', 'Mobile-Friendly Layout']
-    },
-  ];
-
-  const skills = {
-    'Frontend Development': [
-      { name: 'HTML5 & CSS3', level: 88 },
-      { name: 'JavaScript (ES6+)', level: 75 },
-      { name: 'Responsive Design', level: 85 },
-      { name: 'Tailwind CSS', level: 72 },
-      { name: 'React', level: 20 },
-    ],
-
-    'Backend & Data': [
-      { name: 'PHP', level: 70 },
-      { name: 'MySQL & Database Design', level: 75 },
-      { name: 'RESTful APIs', level: 65 },
-      { name: 'Firebase (Auth & Firestore)', level: 78 },
-      { name: 'Laravel', level: 65 }
-    ],
-
-    'Mobile Development': [
-      { name: 'Android Studio', level: 80 },
-      { name: 'Java (Android)', level: 78 },
-      { name: 'XML Layouts', level: 82 },
-      { name: 'Firebase Integration', level: 78 },
-    ],
-
-    'Tools & Workflow': [
-      { name: 'Git & GitHub', level: 88 },
-      { name: 'Figma & UI Design', level: 85 },
-      { name: 'Vite & Build Tools', level: 75 },
-      { name: 'Problem Solving', level: 90 },
-      { name: 'Team Collaboration', level: 95 },
-    ],
-  };
-
-
-  const achievements = [
-    { icon: Code2, number: '20+', label: 'Projects Built', color: 'text-cyan-400' },
-    { icon: Users, number: '1000+', label: 'Users Served', color: 'text-purple-400' },
-    { icon: Zap, number: '99.9%', label: 'Uptime Record', color: 'text-green-400' },
-    { icon: TrendingUp, number: '3+', label: 'Years Experience', color: 'text-orange-400' },
-  ];
-
-  // Form validation
-  const validateForm = () => {
-    const errors = {};
-    
-    if (!formData.name.trim()) {
-      errors.name = 'Name is required';
-    }
-    
-    if (!formData.email.trim()) {
-      errors.email = 'Email is required';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      errors.email = 'Please enter a valid email';
-    }
-    
-    if (!formData.message.trim()) {
-      errors.message = 'Message is required';
-    } else if (formData.message.trim().length < 10) {
-      errors.message = 'Message must be at least 10 characters';
-    }
-    
-    return errors;
-  };
-
-  // Handle input changes
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    // Clear error for this field when user starts typing
-    if (formErrors[name]) {
-      setFormErrors(prev => ({ ...prev, [name]: '' }));
-    }
-  };
-
-  // Functional form submission with EmailJS
-  const handleFormSubmit = async (e) => {
-    e.preventDefault();
-    
-    const errors = validateForm();
-    if (Object.keys(errors).length > 0) {
-      setFormErrors(errors);
-      return;
-    }
-    
-    setIsSubmitting(true);
-    setSubmitStatus('');
-    
-    try {
-      // Using EmailJS for real email functionality
-      // You'll need to sign up at https://www.emailjs.com/ and get your service ID, template ID, and public key
-      const templateParams = {
-        from_name: formData.name,
-        from_email: formData.email,
-        message: formData.message,
-        to_name: 'Eulice Mage',
-      };
-
-      // For now, simulate sending but with better feedback
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // Success feedback
-      setSubmitStatus('success');
-      setFormData({ name: '', email: '', message: '' });
-      
-      // Clear success message after 5 seconds
-      setTimeout(() => setSubmitStatus(''), 5000);
-      
-    } catch (error) {
-      console.error('Form submission error:', error);
-      setSubmitStatus('error');
-      setTimeout(() => setSubmitStatus(''), 5000);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+    loop();
+    return () => cancelAnimationFrame(rafRef.current);
+  }, [mouseRef]);
 
   return (
     <>
-      <div className="bg-slate-950 text-slate-100 min-h-screen font-sans overflow-x-hidden relative">
-        {/* Subtle moving gradient orb */}
-        <div
-          className="fixed inset-0 pointer-events-none z-0"
-          style={{
-            background: `radial-gradient(circle 600px at ${mousePosition.x}px ${mousePosition.y}px, rgba(59, 130, 246, 0.10), transparent 80%)`,
-          }}
-        />
+      <div ref={dotRef} style={{
+        position: 'fixed', width: 12, height: 12,
+        background: '#6ee7f7', borderRadius: '50%',
+        pointerEvents: 'none', zIndex: 9999,
+        mixBlendMode: 'screen', transition: 'transform 0.1s, background 0.3s',
+      }} />
+      <div ref={ringRef} style={{
+        position: 'fixed', width: 36, height: 36,
+        border: '1.5px solid rgba(110,231,247,0.5)',
+        borderRadius: '50%', pointerEvents: 'none', zIndex: 9998,
+        mixBlendMode: 'screen',
+        transition: 'width 0.3s, height 0.3s, border-color 0.3s',
+      }} />
+    </>
+  );
+}
 
-        {/* Navigation */}
-        <nav 
-          className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${scrollY > 50 ? 'bg-slate-950/95 backdrop-blur-2xl border-b border-slate-800/50 shadow-2xl' : 'bg-transparent'}`}
-          role="navigation"
-          aria-label="Main navigation"
+/* ─────────────────────────────────────────────
+   SCROLL PROGRESS BAR
+───────────────────────────────────────────── */
+function ScrollProgress() {
+  const [progress, setProgress] = useState(0);
+  useEffect(() => {
+    const onScroll = () => {
+      const p = window.scrollY / (document.body.scrollHeight - window.innerHeight);
+      setProgress(p * 100);
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+  return (
+    <div style={{
+      position: 'fixed', top: 0, left: 0, height: 2,
+      width: `${progress}%`, zIndex: 200,
+      background: 'linear-gradient(90deg,#6ee7f7,#a78bfa,#f472b6)',
+      transition: 'width 0.1s',
+    }} />
+  );
+}
+
+/* ─────────────────────────────────────────────
+   TILT CARD
+───────────────────────────────────────────── */
+function TiltCard({ children, style, className, as: Tag = 'div', ...rest }) {
+  const ref = useRef(null);
+  const handleMove = (e) => {
+    if (!ref.current) return;
+    const r = ref.current.getBoundingClientRect();
+    const x = (e.clientX - r.left) / r.width - 0.5;
+    const y = (e.clientY - r.top) / r.height - 0.5;
+    ref.current.style.transform = `perspective(800px) rotateY(${x * 14}deg) rotateX(${-y * 10}deg) translateY(-4px) scale(1.02)`;
+  };
+  const handleLeave = () => {
+    if (ref.current) ref.current.style.transform = '';
+  };
+  return (
+    <Tag
+      ref={ref}
+      onMouseMove={handleMove}
+      onMouseLeave={handleLeave}
+      className={className}
+      style={{ transformStyle: 'preserve-3d', transition: 'transform 0.4s ease, box-shadow 0.4s ease', ...style }}
+      {...rest}
+    >
+      {children}
+    </Tag>
+  );
+}
+
+/* ─────────────────────────────────────────────
+   REVEAL WRAPPER
+───────────────────────────────────────────── */
+function Reveal({ children, delay = 0 }) {
+  const ref = useRef(null);
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    const obs = new IntersectionObserver(
+      ([e]) => { if (e.isIntersecting) setVisible(true); },
+      { threshold: 0.12 }
+    );
+    if (ref.current) obs.observe(ref.current);
+    return () => obs.disconnect();
+  }, []);
+  return (
+    <div
+      ref={ref}
+      style={{
+        opacity: visible ? 1 : 0,
+        transform: visible ? 'translateY(0)' : 'translateY(40px)',
+        transition: `opacity 0.8s ${delay}s ease, transform 0.8s ${delay}s ease`,
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────────
+   MAIN COMPONENT
+───────────────────────────────────────────── */
+export default function Portfolio() {
+  const [activeSection, setActiveSection] = useState('home');
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [reduceMotion, setReduceMotion] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [heroPointer, setHeroPointer] = useState({ x: 0, y: 0 });
+  const mouseRef = useRef({ x: 0, y: 0 });
+  const isHovering = useRef(false);
+
+  /* Global mouse tracker */
+  useEffect(() => {
+    const onMove = (e) => { mouseRef.current = { x: e.clientX, y: e.clientY }; };
+    window.addEventListener('mousemove', onMove);
+    return () => window.removeEventListener('mousemove', onMove);
+  }, []);
+
+  /* Active section tracker */
+  useEffect(() => {
+    const sections = Array.from(document.querySelectorAll('section[id]'));
+    const updateActive = () => {
+      const offset = window.innerHeight * 0.3;
+      let current = 'home';
+      sections.forEach((s) => {
+        const r = s.getBoundingClientRect();
+        if (r.top <= offset && r.bottom >= offset) current = s.id;
+      });
+      setActiveSection(current);
+    };
+    window.addEventListener('scroll', updateActive, { passive: true });
+    updateActive();
+    return () => window.removeEventListener('scroll', updateActive);
+  }, []);
+
+  /* Reduced motion + mobile detection */
+  useEffect(() => {
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const mob = window.matchMedia('(max-width: 767px)');
+    const update = () => { setReduceMotion(mq.matches); setIsMobile(mob.matches); };
+    update();
+    mq.addEventListener('change', update);
+    mob.addEventListener('change', update);
+    return () => { mq.removeEventListener('change', update); mob.removeEventListener('change', update); };
+  }, []);
+
+  const scrollTo = (id) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+    setIsMenuOpen(false);
+  };
+
+  const heroTilt = (reduceMotion || isMobile) ? {} : {
+    transform: `perspective(1400px) rotateX(${-heroPointer.y * 6}deg) rotateY(${heroPointer.x * 9}deg) translateZ(0)`,
+  };
+  const layer = (depth) => (reduceMotion || isMobile) ? {} : {
+    transform: `translate3d(${heroPointer.x * depth}px,${heroPointer.y * depth}px,${depth * 1.5}px)`,
+  };
+
+  /* ── STYLES ── */
+  const S = {
+    shell: {
+      minHeight: '100vh', background: '#030712', color: '#f1f5f9',
+      fontFamily: "'Space Grotesk', 'DM Sans', system-ui, sans-serif",
+      cursor: isMobile ? 'auto' : 'none',
+    },
+    // NAV
+    nav: {
+      position: 'sticky', top: 0, zIndex: 100,
+      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      padding: '0.9rem 2.5rem',
+      background: 'rgba(3,7,18,0.65)', backdropFilter: 'blur(24px)',
+      borderBottom: '1px solid rgba(255,255,255,0.07)',
+    },
+    logo: {
+      fontFamily: "'Syne', sans-serif", fontSize: '1.1rem', fontWeight: 800,
+      background: 'linear-gradient(135deg,#6ee7f7,#a78bfa)',
+      WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+      letterSpacing: '-0.02em', cursor: isMobile ? 'pointer' : 'none',
+      border: 'none', backgroundColor: 'transparent',
+    },
+  };
+
+  return (
+    <div style={S.shell}>
+      {/* ── GLOBAL EFFECTS ── */}
+      <ScrollProgress />
+      {!isMobile && <CustomCursor mouseRef={mouseRef} />}
+      <ParticleCanvas mouseRef={mouseRef} />
+
+      {/* ── AMBIENT ORBS ── */}
+      <div style={{ position: 'fixed', inset: 0, zIndex: 1, pointerEvents: 'none', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', right: -200, top: -100, width: 600, height: 600, borderRadius: '50%', background: 'radial-gradient(#a78bfa,transparent 70%)', opacity: 0.12, filter: 'blur(80px)', animation: 'drift1 12s ease-in-out infinite' }} />
+        <div style={{ position: 'absolute', left: -100, bottom: 0, width: 400, height: 400, borderRadius: '50%', background: 'radial-gradient(#6ee7f7,transparent 70%)', opacity: 0.1, filter: 'blur(80px)', animation: 'drift2 15s ease-in-out infinite' }} />
+      </div>
+
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Space+Grotesk:wght@300;400;500;600&display=swap');
+        @keyframes drift1 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-40px,30px)} }
+        @keyframes drift2 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(30px,-40px)} }
+        @keyframes fadeUp { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes pulse  { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.8)} }
+        body::-webkit-scrollbar { width: 3px; }
+        body::-webkit-scrollbar-track { background: transparent; }
+        body::-webkit-scrollbar-thumb { background: linear-gradient(#6ee7f7,#a78bfa); border-radius: 2px; }
+        .portfolio-nav-link { position:relative; font-size:0.8rem; font-weight:500; letter-spacing:0.1em; text-transform:uppercase; text-decoration:none; transition:color 0.2s; }
+        .portfolio-nav-link::after { content:''; position:absolute; bottom:-4px; left:0; width:0; height:1px; background:#6ee7f7; transition:width 0.3s; }
+        .portfolio-nav-link:hover::after { width:100%; }
+        .portfolio-nav-link:hover { color:#fff !important; }
+        .pcard-hover { transition: transform 0.4s ease, box-shadow 0.4s ease, border-color 0.3s; }
+        .pcard-hover:hover { transform: translateY(-6px); box-shadow: 0 30px 80px rgba(0,0,0,0.5); }
+        .sup-link-btn { transition: background 0.2s, border-color 0.2s, color 0.2s; }
+        .sup-link-btn:hover { background: rgba(255,255,255,0.05) !important; border-color: rgba(255,255,255,0.18) !important; color: #fff !important; }
+        .citem-row { transition: background 0.2s, border-color 0.2s; }
+        .citem-row:hover { background: rgba(255,255,255,0.04) !important; border-color: rgba(255,255,255,0.12) !important; }
+        .btn-primary-glow { transition: transform 0.2s, box-shadow 0.2s; }
+        .btn-primary-glow:hover { transform: translateY(-2px) scale(1.02); box-shadow: 0 8px 40px rgba(99,102,241,0.55) !important; }
+        .btn-ghost-hover { transition: background 0.2s, border-color 0.2s; }
+        .btn-ghost-hover:hover { background: rgba(255,255,255,0.06) !important; border-color: rgba(255,255,255,0.2) !important; }
+        .nav-cta-btn { transition: transform 0.2s, box-shadow 0.2s; }
+        .nav-cta-btn:hover { transform: scale(1.05); box-shadow: 0 0 30px rgba(110,231,247,0.45) !important; }
+      `}</style>
+
+      {/* ── NAV ── */}
+      <nav style={S.nav}>
+        <button onClick={() => scrollTo('home')} style={S.logo} aria-label="Home">EM</button>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1.75rem' }} className="hidden lg:flex">
+          {navigationItems.map((item) => (
+            <button
+              key={item.id}
+              onClick={() => scrollTo(item.id)}
+              className="portfolio-nav-link"
+              style={{
+                color: activeSection === item.id ? '#fff' : '#64748b',
+                background: 'none', border: 'none', cursor: isMobile ? 'pointer' : 'none', padding: 0,
+              }}
+            >
+              {item.label}
+            </button>
+          ))}
+          <button
+            onClick={() => scrollTo('contact')}
+            className="nav-cta-btn"
+            style={{
+              padding: '0.5rem 1.4rem', borderRadius: 100, fontSize: '0.8rem', fontWeight: 600,
+              background: 'linear-gradient(135deg,#0ea5e9,#6366f1)', color: '#fff',
+              border: 'none', cursor: isMobile ? 'pointer' : 'none',
+              boxShadow: '0 0 20px rgba(99,102,241,0.35)',
+            }}
+          >
+            Hire Me
+          </button>
+        </div>
+
+        <button
+          className="lg:hidden"
+          onClick={() => setIsMenuOpen(v => !v)}
+          style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, padding: '0.4rem', color: '#cbd5e1', cursor: 'pointer' }}
         >
-          <div className="max-w-7xl mx-auto px-6 py-5">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3 group cursor-pointer" 
-                   onClick={() => scrollToSection('home')}
-                   role="button"
-                   tabIndex={0}
-                   onKeyPress={(e) => e.key === 'Enter' && scrollToSection('home')}
-                   aria-label="Go to home section">
-                <div className="relative">
-                  <div className="absolute inset-0 bg-gradient-to-br from-cyan-400 to-purple-600 rounded-xl blur-md opacity-75 group-hover:opacity-100 transition-opacity" />
-                  <div className="relative w-11 h-11 rounded-xl bg-gradient-to-br from-cyan-400 to-purple-600 flex items-center justify-center font-bold text-slate-950">
-                    <Terminal size={22} />
-                  </div>
-                </div>
-                <span className="font-bold text-xl hidden sm:block bg-gradient-to-r from-cyan-400 to-purple-600 bg-clip-text text-transparent">
+          {isMenuOpen ? <X size={20} /> : <Menu size={20} />}
+        </button>
+      </nav>
+
+      {isMenuOpen && (
+        <div style={{ background: 'rgba(3,7,18,0.9)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255,255,255,0.07)', position: 'sticky', top: 57, zIndex: 99 }}>
+          {navigationItems.map((item) => (
+            <button key={item.id} onClick={() => scrollTo(item.id)}
+              style={{ display: 'block', width: '100%', padding: '0.85rem 1.5rem', textAlign: 'left', background: 'none', border: 'none', color: '#e2e8f0', fontSize: '0.9rem', cursor: 'pointer' }}>
+              {item.label}
+            </button>
+          ))}
+        </div>
+      )}
+
+      <main style={{ position: 'relative', zIndex: 10 }}>
+
+        {/* ── HERO ── */}
+        <section id="home" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', padding: isMobile ? '5rem 1.5rem 3rem' : '6rem 3rem 4rem', position: 'relative', overflow: 'hidden' }}>
+          <div style={{ maxWidth: 900, position: 'relative', zIndex: 2, width: '100%' }}>
+
+            {/* Badge */}
+            <div
+              onMouseMove={(e) => {
+                if (!reduceMotion && !isMobile) {
+                  const b = e.currentTarget.closest('section').getBoundingClientRect();
+                  setHeroPointer({
+                    x: +((e.clientX - b.left) / b.width - 0.5).toFixed(3),
+                    y: +((e.clientY - b.top) / b.height - 0.5).toFixed(3),
+                  });
+                }
+              }}
+              onMouseLeave={() => setHeroPointer({ x: 0, y: 0 })}
+              style={{ display: 'contents' }}
+            />
+            <div style={{ ...layer(8), display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.35rem 1rem', borderRadius: 100, border: '1px solid rgba(110,231,247,0.25)', background: 'rgba(110,231,247,0.06)', marginBottom: '1.75rem', animation: 'fadeUp 0.8s ease both' }}>
+              <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#6ee7f7', animation: 'pulse 2s infinite', display: 'inline-block' }} />
+              <span style={{ fontSize: '0.72rem', fontWeight: 600, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#6ee7f7' }}>Software Developer Portfolio</span>
+            </div>
+
+            {/* Headline */}
+            <div style={layer(10)}>
+              <h1 style={{ fontFamily: "'Syne', sans-serif", fontSize: isMobile ? '3rem' : 'clamp(3.5rem,8vw,7rem)', fontWeight: 800, lineHeight: 0.95, letterSpacing: '-0.03em', color: '#fff', animation: 'fadeUp 0.8s 0.1s ease both', marginBottom: '1.4rem' }}>
+                Hi, I'm{' '}
+                <span style={{ background: 'linear-gradient(135deg,#6ee7f7 0%,#a78bfa 50%,#f472b6 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
                   Eulice Mage
                 </span>
-              </div>
-
-              <div className="hidden lg:flex items-center space-x-10">
-                {['Home', 'About', 'Skills', 'Projects', 'Contact'].map((item) => (
-                  <button
-                    key={item}
-                    onClick={() => scrollToSection(item.toLowerCase())}
-                    className={`text-sm font-medium transition-all duration-300 relative group ${activeSection === item.toLowerCase() ? 'text-cyan-400' : 'text-slate-400 hover:text-slate-100'}`}
-                  >
-                    {item}
-                    <span className={`absolute -bottom-1 left-0 w-full h-0.5 bg-gradient-to-r from-cyan-400 to-purple-600 transform origin-left transition-transform duration-300 ${activeSection === item.toLowerCase() ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'}`} />
-                  </button>
-                ))}
-                <button
-                  onClick={() => scrollToSection('contact')}
-                  className="px-7 py-3 rounded-full bg-gradient-to-r from-cyan-500 to-purple-600 text-white font-semibold hover:shadow-2xl hover:shadow-cyan-500/50 hover:scale-105 transition-all duration-300"
-                >
-                  Let's Talk
-                </button>
-              </div>
-
-              <button 
-                onClick={() => setIsMenuOpen(!isMenuOpen)} 
-                className="lg:hidden text-slate-100"
-                aria-label={isMenuOpen ? 'Close menu' : 'Open menu'}
-                aria-expanded={isMenuOpen}
-              >
-                {isMenuOpen ? <X size={28} /> : <Menu size={28} />}
-              </button>
+                .
+              </h1>
             </div>
 
-            {isMenuOpen && (
-              <div className="lg:hidden mt-6 pb-6 border-t border-slate-800/50 pt-6">
-                {['Home', 'About', 'Skills', 'Projects', 'Contact'].map((item) => (
-                  <button
-                    key={item}
-                    onClick={() => scrollToSection(item.toLowerCase())}
-                    className="block w-full text-left py-4 px-2 text-lg text-slate-300 hover:text-cyan-400 transition-colors"
-                  >
-                    {item}
-                  </button>
-                ))}
-                <button 
-                  onClick={() => scrollToSection('contact')}
-                  className="mt-4 w-full px-7 py-4 rounded-full bg-gradient-to-r from-cyan-500 to-purple-600 text-white font-semibold"
-                >
-                  Let's Talk
-                </button>
-              </div>
-            )}
-          </div>
-        </nav>
-
-        {/* Home Section */}
-        <section id="home" className="min-h-screen flex items-center justify-center px-6 pt-20 relative">
-          <div className="max-w-5xl mx-auto text-center z-10">
-            <div className="mb-8 inline-block animate-slide-in-top">
-              <div className="text-6xl md:text-8xl font-bold bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-600 bg-clip-text text-transparent animate-gradient-shift">
-                Eulice Mage
-              </div>
-            </div>
-            
-            <div className="h-20 md:h-24 mb-8 animate-slide-in-top" style={{ animationDelay: '0.2s' }}>
-              <p className="text-2xl md:text-4xl text-slate-300 font-semibold">
-                I'm a <span className="text-cyan-400 animate-pulse-glow">{typedText}</span>
-                <span className={`ml-2 ${cursorVisible ? 'opacity-100' : 'opacity-0'} transition-opacity`}>|</span>
+            <div style={layer(6)}>
+              <p style={{ maxWidth: 560, fontSize: '1.05rem', lineHeight: 1.8, color: '#94a3b8', animation: 'fadeUp 0.8s 0.2s ease both', marginBottom: '2.2rem' }}>
+                An IT graduate focused on building practical, modern software across frontend and backend systems. I translate requirements into clean interfaces and dependable workflows.
               </p>
             </div>
 
-            <p className="text-lg md:text-xl text-slate-400 max-w-3xl mx-auto mb-12 leading-relaxed animate-slide-in-top" style={{ animationDelay: '0.4s' }}>
-              Results-driven full-stack developer ready to bring technical expertise and problem-solving skills to your team. Proven ability to deliver scalable solutions that drive business growth and user engagement.
-            </p>
-
-            <div className="flex flex-col sm:flex-row gap-6 justify-center mb-16 animate-slide-in-top" style={{ animationDelay: '0.6s' }}>
+            {/* CTAs */}
+            <div style={{ ...layer(7), display: 'flex', gap: '1rem', flexWrap: 'wrap', animation: 'fadeUp 0.8s 0.3s ease both', marginBottom: '2.5rem' }}>
               <button
-                onClick={() => scrollToSection('projects')}
-                className="px-10 py-4 rounded-full bg-gradient-to-r from-cyan-500 to-purple-600 text-white font-bold text-lg hover:shadow-2xl hover:shadow-cyan-500/50 hover:scale-105 transition-all duration-300 animate-glow"
+                onClick={() => scrollTo('projects')}
+                className="btn-primary-glow"
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.85rem 2rem', borderRadius: 100, background: 'linear-gradient(135deg,#0ea5e9,#6366f1)', color: '#fff', fontWeight: 600, fontSize: '0.9rem', border: 'none', cursor: isMobile ? 'pointer' : 'none', boxShadow: '0 0 30px rgba(99,102,241,0.35)' }}
               >
-                Explore My Projects
+                View Projects <ArrowRight size={15} />
               </button>
-              <button
-                onClick={() => scrollToSection('contact')}
-                className="px-10 py-4 rounded-full border-2 border-cyan-500 text-cyan-400 font-bold text-lg hover:bg-cyan-500/10 transition-all duration-300 hover:animate-glow"
+              <a
+                href="mailto:eulice.mage57@gmail.com"
+                className="btn-ghost-hover"
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.85rem 2rem', borderRadius: 100, border: '1px solid rgba(255,255,255,0.12)', color: '#e2e8f0', fontWeight: 500, fontSize: '0.9rem', textDecoration: 'none', cursor: isMobile ? 'pointer' : 'none', background: 'transparent' }}
               >
-                Let's Work Together
-              </button>
+                Email Me <Mail size={15} />
+              </a>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mt-20">
-              {achievements.map((achievement, idx) => {
-                const Icon = achievement.icon;
-                return (
-                  <div key={achievement.label} className="text-center group animate-slide-in-bottom" style={{ animationDelay: `${0.8 + idx * 0.1}s` }}>
-                    <Icon size={40} className={`${achievement.color} mx-auto mb-3 group-hover:scale-110 transition-transform animate-float`} />
-                    <p className="text-3xl font-bold text-white mb-1 group-hover:text-cyan-400 transition-colors">{achievement.number}</p>
-                    <p className="text-sm text-slate-400">{achievement.label}</p>
+            {/* Signal cards */}
+            <div style={{ ...layer(5), display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3,1fr)', gap: '0.85rem', animation: 'fadeUp 0.8s 0.4s ease both' }}>
+              {heroSignals.map((s) => (
+                <TiltCard key={s.label}
+                  style={{ padding: '1.1rem 1.3rem', borderRadius: 16, border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.03)' }}
+                >
+                  <p style={{ fontSize: '0.68rem', fontWeight: 600, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#475569' }}>{s.label}</p>
+                  <p style={{ marginTop: '0.4rem', fontSize: '0.88rem', fontWeight: 600, color: s.highlight ? '#34d399' : '#e2e8f0' }}>
+                    {s.highlight && <span style={{ marginRight: '0.3rem' }}>●</span>}{s.value}
+                  </p>
+                </TiltCard>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ── ABOUT ── */}
+        <section id="about" style={{ padding: isMobile ? '4rem 1.5rem' : '5rem 3rem' }}>
+          <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+            <Reveal>
+              <div style={{ position: 'relative', overflow: 'hidden', borderRadius: 28, border: '1px solid rgba(255,255,255,0.08)', padding: isMobile ? '2rem' : '2.5rem 3rem', background: 'rgba(15,23,42,0.65)', backdropFilter: 'blur(12px)' }}>
+                <div style={{ position: 'absolute', inset: '0 0 auto', height: 1, background: 'linear-gradient(90deg,transparent,#a78bfa 40%,#6ee7f7 60%,transparent)' }} />
+                <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1.3fr 0.7fr', gap: '2.5rem' }}>
+                  <div>
+                    <p style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#38bdf8', marginBottom: '1rem' }}>About Me</p>
+                    <h2 style={{ fontFamily: "'Syne',sans-serif", fontSize: 'clamp(1.8rem,3.5vw,2.8rem)', fontWeight: 800, color: '#fff', lineHeight: 1.15, letterSpacing: '-0.02em', marginBottom: '1.2rem' }}>
+                      Building real software with a clear technical foundation.
+                    </h2>
+                    <p style={{ fontSize: '0.97rem', lineHeight: 1.85, color: '#94a3b8', marginBottom: '1rem' }}>
+                      My portfolio is built around proof: the software systems I've built, the stack I used, and the kind of team contribution I'm ready to grow into. I'm a fresh graduate with a solid foundation in web and mobile development.
+                    </p>
+                    <p style={{ fontSize: '0.97rem', lineHeight: 1.85, color: '#94a3b8' }}>
+                      I'm eager to join a team where I can contribute from day one, keep learning quickly, and eventually help drive meaningful product decisions.
+                    </p>
                   </div>
-                );
-              })}
-            </div>
-          </div>
-        </section>
-
-        {/* About Section */}
-        <section id="about" className={`py-20 px-6 relative ${isVisible.about ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-16'} transition-all duration-1000 delay-100`}>
-          <div className="max-w-5xl mx-auto">
-            <h2 className="text-4xl md:text-6xl font-bold mb-12 text-center">
-              About <span className="bg-gradient-to-r from-cyan-400 to-purple-600 bg-clip-text text-transparent">Me</span>
-            </h2>
-
-            <div className="grid md:grid-cols-2 gap-8 items-center">
-              <div className="space-y-4 animate-slide-in-left">
-                <p className="text-lg text-slate-300 leading-relaxed hover:text-slate-100 transition-colors">
-                  Results-driven full-stack developer with 3+ years of experience building production-ready applications that solve real business problems. Seeking opportunities to apply my expertise in modern web technologies to contribute to innovative projects and drive business growth.
-                </p>
-                <p className="text-lg text-slate-300 leading-relaxed hover:text-slate-100 transition-colors">
-                  I excel at developing scalable architectures, implementing secure authentication systems, and optimizing application performance. My strong foundation in both frontend and backend technologies allows me to take projects from concept to deployment while maintaining code quality and best practices.
-                </p>
-                <p className="text-lg text-slate-300 leading-relaxed hover:text-slate-100 transition-colors">
-                  I'm passionate about continuous learning and staying current with emerging technologies. I thrive in collaborative environments, communicate effectively with cross-functional teams, and am committed to delivering exceptional results that exceed expectations and drive business success.
-                </p>
-              </div>
-
-              <div className="space-y-3">
-                <div className="p-5 rounded-xl bg-gradient-to-br from-slate-900/50 to-slate-950/50 border border-slate-800 hover:border-cyan-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/20 animate-slide-in-right hover:scale-105">
-                  <h3 className="text-lg font-bold text-cyan-400 mb-2">🎓 Education</h3>
-                  <p className="text-slate-300">BS in Information Technology</p>
-                  <p className="text-sm text-slate-400">System Development Specialization</p>
-                </div>
-                <div className="p-5 rounded-xl bg-gradient-to-br from-slate-900/50 to-slate-950/50 border border-slate-800 hover:border-cyan-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/20 animate-slide-in-right" style={{ animationDelay: '0.1s' }}>
-                  <h3 className="text-lg font-bold text-purple-400 mb-2">💼 Experience</h3>
-                  <p className="text-slate-300">20+ Production Projects</p>
-                  <p className="text-sm text-slate-400">1000+ End Users Served</p>
-                </div>
-                <div className="p-5 rounded-xl bg-gradient-to-br from-slate-900/50 to-slate-950/50 border border-slate-800 hover:border-cyan-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/20 animate-slide-in-right" style={{ animationDelay: '0.2s' }}>
-                  <h3 className="text-lg font-bold text-green-400 mb-2">🎯 Ready to Contribute</h3>
-                  <p className="text-slate-300">Full-Stack Development</p>
-                  <p className="text-sm text-slate-400">Immediate Availability</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Skills Section */}
-        <section id="skills" className={`py-20 px-6 relative ${isVisible.skills ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-16'} transition-all duration-1000 delay-100`}>
-          <div className="max-w-6xl mx-auto">
-            <div className="text-center mb-16">
-              <h2 className="text-4xl md:text-6xl font-bold mb-4">
-                Technical <span className="bg-gradient-to-r from-cyan-400 to-purple-600 bg-clip-text text-transparent">Expertise</span>
-              </h2>
-              <p className="text-lg text-slate-400 max-w-2xl mx-auto">
-                Comprehensive skill set built through hands-on experience and continuous learning. Ready to contribute to your team from day one.
-              </p>
-            </div>
-
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {Object.entries(skills).map(([category, skillList], idx) => (
-                <div
-                  key={category}
-                  className="p-6 rounded-2xl bg-gradient-to-br from-slate-900/50 to-slate-950/50 border border-slate-800 hover:border-cyan-500/50 backdrop-blur-xl transition-all duration-500 hover:scale-[1.02] animate-slide-in-bottom hover:shadow-lg hover:shadow-cyan-500/20"
-                  style={{ animationDelay: `${idx * 0.1}s` }}
-                >
-                  <h3 className="text-xl font-bold mb-6 text-cyan-400">{category}</h3>
-                  <div className="space-y-4">
-                    {skillList.map((skill, skillIdx) => (
-                      <div key={skill.name}>
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="text-slate-300 text-sm font-medium hover:text-cyan-400 transition-colors">{skill.name}</span>
-                          <span className="text-cyan-400 font-bold text-sm">{skill.level}%</span>
-                        </div>
-                        <div className="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
-                          <div
-                            className="h-full bg-gradient-to-r from-cyan-500 to-purple-600 rounded-full transition-all duration-1000 animate-shimmer"
-                            style={{ width: `${skill.level}%` }}
-                          />
-                        </div>
-                      </div>
+                  <div style={{ display: 'grid', gap: '0.75rem', alignSelf: 'center' }}>
+                    {[
+                      { label: 'Degree', val: 'BS Information Technology', sub: 'System Development track' },
+                      { label: 'Work Style', val: 'Calm & coachable', sub: 'Ready for structured feedback' },
+                      { label: 'Interests', val: 'LGU & service portals', sub: 'Data-backed internal tools' },
+                    ].map((item) => (
+                      <TiltCard key={item.label} style={{ padding: '1rem 1.2rem', borderRadius: 14, border: '1px solid rgba(255,255,255,0.07)', background: 'rgba(255,255,255,0.02)' }}>
+                        <p style={{ fontSize: '0.68rem', color: '#475569', letterSpacing: '0.1em', textTransform: 'uppercase' }}>{item.label}</p>
+                        <p style={{ marginTop: '0.35rem', fontSize: '0.88rem', fontWeight: 700, color: '#e2e8f0' }}>{item.val}</p>
+                        <p style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '0.15rem' }}>{item.sub}</p>
+                      </TiltCard>
                     ))}
                   </div>
                 </div>
-              ))}
-            </div>
+              </div>
+            </Reveal>
           </div>
         </section>
 
-        {/* Projects Section */}
-        <section id="projects" className={`py-32 px-6 relative overflow-hidden ${isVisible.projects ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-16'} transition-all duration-1000 delay-100`}>
-          <div className="max-w-7xl mx-auto">
-            <div className="text-center mb-20">
-              <h2 className="text-5xl md:text-7xl font-bold mb-6">
-                Featured <span className="bg-gradient-to-r from-cyan-400 to-purple-600 bg-clip-text text-transparent">Projects</span>
+        {/* ── STACK ── */}
+        <section id="stack" style={{ padding: isMobile ? '4rem 1.5rem' : '5rem 3rem' }}>
+          <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+            <Reveal>
+              <p style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#a78bfa', marginBottom: '0.75rem' }}>Technical Focus</p>
+              <h2 style={{ fontFamily: "'Syne',sans-serif", fontSize: 'clamp(1.8rem,3.5vw,2.8rem)', fontWeight: 800, color: '#fff', lineHeight: 1.15, letterSpacing: '-0.02em', maxWidth: 600, marginBottom: '0.75rem' }}>
+                A proof-based view of my stack and capabilities.
               </h2>
-              <p className="text-xl text-slate-400 max-w-3xl mx-auto">
-                Showcase of production-ready applications built with modern technologies. Each project demonstrates technical depth, problem-solving ability, and commitment to quality.
+              <p style={{ fontSize: '0.97rem', lineHeight: 1.8, color: '#64748b', maxWidth: 500, marginBottom: '2.5rem' }}>
+                Every technology here is grounded in real project work — not certifications or theoretical exposure.
               </p>
-            </div>
 
-            <div className="grid lg:grid-cols-3 gap-8">
-              {projects.map((project, idx) => (
-                <div
-                  key={idx}
-                  className="group relative bg-gradient-to-br from-slate-900/50 to-slate-950/50 rounded-3xl overflow-hidden border border-slate-800 hover:border-cyan-500/50 backdrop-blur-xl transition-all duration-500 hover:scale-[1.02] hover:shadow-2xl hover:shadow-cyan-500/20 animate-slide-in-bottom"
-                  style={{ animationDelay: `${idx * 0.2}s` }}
-                >
-                  <div className="relative h-64 overflow-hidden">
-                    <img 
-                      src={project.image} 
-                      alt={`${project.title} screenshot`} 
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
-                      loading="lazy"
-                      onError={(e) => {
-                        e.target.src = `https://picsum.photos/seed/${project.title}/400/300.jpg`;
-                      }}
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80" />
-                    <div className={`absolute top-4 right-4 px-4 py-2 rounded-full bg-gradient-to-r ${project.color} text-white text-sm font-semibold`}>Featured</div>
-                  </div>
-
-                  <div className="p-8">
-                    <h3 className="text-2xl font-bold mb-3 group-hover:text-cyan-400 transition-colors">{project.title}</h3>
-                    <p className="text-slate-400 mb-6 leading-relaxed">{project.description}</p>
-
-                    <div className="flex flex-wrap gap-2 mb-6">
-                      {project.tech.map((tech, techIdx) => (
-                        <span key={tech} className="px-3 py-1.5 text-xs rounded-full bg-slate-800/70 border border-slate-700 text-slate-300 hover:border-cyan-500 hover:bg-slate-800 transition-all duration-300 animate-slide-in-top" style={{ animationDelay: `${techIdx * 0.05}s` }}>
-                          {tech}
-                        </span>
-                      ))}
+              {/* Proof cards */}
+              <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3,1fr)', gap: '1.25rem', marginBottom: '1.5rem' }}>
+                {proofSections.map((sec) => (
+                  <TiltCard key={sec.title}
+                    as="article"
+                    className="pcard-hover"
+                    style={{ padding: '1.8rem', borderRadius: 20, border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(15,23,42,0.5)', position: 'relative', overflow: 'hidden' }}
+                  >
+                    <div style={{ width: 46, height: 46, borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.3rem', marginBottom: '1.2rem', background: `${sec.accent}18`, border: `1px solid ${sec.accent}30` }}>
+                      {sec.emoji}
                     </div>
-
-                    {project.results && (
-                      <div className="grid grid-cols-3 gap-4 mb-8">
-                        {project.results.map((result) => (
-                          <div key={result} className="text-center">
-                            <CheckCircle2 size={20} className="text-green-400 mx-auto mb-1" />
-                            <p className="text-xs text-slate-400">{result}</p>
-                          </div>
-                        ))}
+                    <h3 style={{ fontFamily: "'Syne',sans-serif", fontSize: '1.1rem', fontWeight: 700, color: '#fff', marginBottom: '0.8rem' }}>{sec.title}</h3>
+                    {sec.points.map((pt) => (
+                      <div key={pt} style={{ display: 'flex', gap: '0.6rem', marginBottom: '0.7rem' }}>
+                        <span style={{ width: 5, height: 5, borderRadius: '50%', background: sec.accent, marginTop: '0.6rem', flexShrink: 0 }} />
+                        <p style={{ fontSize: '0.82rem', lineHeight: 1.7, color: '#64748b' }}>{pt}</p>
                       </div>
-                    )}
-
-                    {project.highlights && (
-                      <div className="mb-8 p-4 rounded-xl bg-slate-800/30 border border-slate-700/50">
-                        <p className="text-xs font-semibold text-cyan-400 mb-2">Key Features</p>
-                        <div className="flex flex-wrap gap-2">
-                          {project.highlights.map((highlight) => (
-                            <span key={highlight} className="text-xs px-2 py-1 rounded bg-cyan-500/10 text-cyan-300 border border-cyan-500/30">
-                              {highlight}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    <div className="flex space-x-4">
-                      <a
-                        href={project.live}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex-1 flex items-center justify-center space-x-2 px-5 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-medium hover:shadow-lg hover:shadow-cyan-500/50 transition-all duration-300"
-                      >
-                        <ExternalLink size={18} />
-                        <span>Live Demo</span>
-                      </a>
-                      <a
-                        href={project.github}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex-1 flex items-center justify-center space-x-2 px-5 py-3 rounded-xl border border-slate-700 hover:border-cyan-500 hover:bg-slate-800/50 transition-all duration-300"
-                      >
-                        <Github size={18} />
-                        <span>Code</span>
-                      </a>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Contact Section */}
-        <section id="contact" className={`py-32 px-6 relative ${isVisible.contact ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-16'} transition-all duration-1000 delay-200`}>
-          <div className="max-w-7xl mx-auto">
-            <div className="text-center mb-20">
-              <h2 className="text-5xl md:text-7xl font-bold mb-6">
-                Ready to <span className="bg-gradient-to-r from-cyan-400 to-purple-600 bg-clip-text text-transparent">Work Together</span>
-              </h2>
-              <p className="text-xl text-slate-400 max-w-3xl mx-auto">
-                I'm actively looking for opportunities to contribute to impactful projects. Let's connect and discuss how I can add value to your team.
-              </p>
-            </div>
-
-            <div className="grid lg:grid-cols-2 gap-12 items-start">
-              <div className="animate-slide-in-left">
-                <h3 className="text-3xl font-bold mb-8">Get In Touch</h3>
-                <div className="space-y-6 mb-10">
-                  <div className="flex items-center space-x-4 hover:translate-x-2 transition-transform duration-300 animate-slide-in-left">
-                    <div className="p-3 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 animate-glow">
-                      <Mail size={24} className="text-white" />
-                    </div>
-                    <div>
-                      <p className="text-slate-400">Email</p>
-                      <a href="mailto:eulice.mage57@gmail.com" className="text-xl font-semibold hover:text-cyan-400 transition-colors">
-                        eulice.mage57@gmail.com
-                      </a>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center space-x-4 hover:translate-x-2 transition-transform duration-300 animate-slide-in-left" style={{ animationDelay: '0.1s' }}>
-                    <div className="p-3 rounded-xl bg-gradient-to-br from-purple-500 to-pink-600 animate-glow">
-                      <Phone size={24} className="text-white" />
-                    </div>
-                    <div>
-                      <p className="text-slate-400">Phone</p>
-                      <p className="text-xl font-semibold">+63 9** *** ****</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center space-x-4 hover:translate-x-2 transition-transform duration-300 animate-slide-in-left" style={{ animationDelay: '0.2s' }}>
-                    <div className="p-3 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 animate-glow">
-                      <MapPin size={24} className="text-white" />
-                    </div>
-                    <div>
-                      <p className="text-slate-400">Location</p>
-                      <p className="text-xl font-semibold">Cavinti, Laguna, Philippines</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex space-x-4">
-                  <a href="https://github.com/eulicemage" target="_blank" rel="noopener noreferrer" className="p-4 rounded-xl bg-slate-800 hover:bg-slate-700 transition-all duration-300 hover:scale-110 animate-bounce-smooth">
-                    <Github size={28} />
-                  </a>
-                  <a href="https://www.linkedin.com/in/gonzales-eulice-mage-v-gonzales-93248a361/" target="_blank" rel="noopener noreferrer" className="p-4 rounded-xl bg-slate-800 hover:bg-slate-700 transition-all duration-300 hover:scale-110 animate-bounce-smooth" style={{ animationDelay: '0.2s' }}>
-                    <Linkedin size={28} />
-                  </a>
-                </div>
+                    ))}
+                  </TiltCard>
+                ))}
               </div>
 
-              <form className="space-y-6 animate-slide-in-right" onSubmit={handleFormSubmit}>
-                {submitStatus === 'success' && (
-                  <div className="p-4 rounded-xl bg-green-500/10 border border-green-500/30 text-green-300 animate-slide-in-top">
-                    <p className="flex items-center space-x-2">
-                      <CheckCircle2 size={20} />
-                      <span>Message sent successfully! I'll get back to you soon.</span>
-                    </p>
-                  </div>
-                )}
-                
-                {submitStatus === 'error' && (
-                  <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-300 animate-slide-in-top">
-                    <p className="flex items-center space-x-2">
-                      <X size={20} />
-                      <span>Failed to send message. Please try again.</span>
-                    </p>
-                  </div>
-                )}
-                
-                <div className="animate-slide-in-right" style={{ animationDelay: '0.1s' }}>
-                  <input
-                    type="text"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    placeholder="Your Name"
-                    className={`w-full px-6 py-4 rounded-xl bg-slate-900/50 border transition-all duration-300 focus:outline-none focus:shadow-lg hover:border-slate-600 ${
-                      formErrors.name 
-                        ? 'border-red-500 focus:border-red-500 focus:shadow-red-500/20' 
-                        : 'border-slate-700 focus:border-cyan-500 focus:shadow-cyan-500/20'
-                    }`}
-                  />
-                  {formErrors.name && (
-                    <p className="mt-2 text-red-400 text-sm animate-slide-in-top">{formErrors.name}</p>
-                  )}
-                </div>
-                
-                <div className="animate-slide-in-right" style={{ animationDelay: '0.2s' }}>
-                  <input
-                    type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    placeholder="Your Email"
-                    className={`w-full px-6 py-4 rounded-xl bg-slate-900/50 border transition-all duration-300 focus:outline-none focus:shadow-lg hover:border-slate-600 ${
-                      formErrors.email 
-                        ? 'border-red-500 focus:border-red-500 focus:shadow-red-500/20' 
-                        : 'border-slate-700 focus:border-cyan-500 focus:shadow-cyan-500/20'
-                    }`}
-                  />
-                  {formErrors.email && (
-                    <p className="mt-2 text-red-400 text-sm animate-slide-in-top">{formErrors.email}</p>
-                  )}
-                </div>
-                
-                <div className="animate-slide-in-right" style={{ animationDelay: '0.3s' }}>
-                  <textarea
-                    name="message"
-                    value={formData.message}
-                    onChange={handleInputChange}
-                    rows={6}
-                    placeholder="Your Message"
-                    className={`w-full px-6 py-4 rounded-xl bg-slate-900/50 border transition-all duration-300 focus:outline-none focus:shadow-lg hover:border-slate-600 resize-none ${
-                      formErrors.message 
-                        ? 'border-red-500 focus:border-red-500 focus:shadow-red-500/20' 
-                        : 'border-slate-700 focus:border-cyan-500 focus:shadow-cyan-500/20'
-                    }`}
-                  />
-                  {formErrors.message && (
-                    <p className="mt-2 text-red-400 text-sm animate-slide-in-top">{formErrors.message}</p>
-                  )}
-                </div>
-                
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full px-8 py-5 rounded-xl bg-gradient-to-r from-cyan-500 to-purple-600 text-white font-bold text-lg hover:shadow-2xl hover:shadow-cyan-500/50 hover:scale-105 transition-all duration-300 flex items-center justify-center space-x-3 animate-slide-in-right animate-glow disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
-                  style={{ animationDelay: '0.4s' }}
-                >
-                  {isSubmitting ? (
-                    <>
-                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                      <span>Sending...</span>
-                    </>
-                  ) : (
-                    <>
-                      <span>Send Message</span>
-                      <Send size={22} />
-                    </>
-                  )}
-                </button>
-              </form>
-            </div>
+              {/* Tech chips */}
+              <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2,1fr)' : 'repeat(4,1fr)', gap: '1rem' }}>
+                {technicalGroups.map((grp) => {
+                  const Icon = grp.icon;
+                  return (
+                    <TiltCard key={grp.title} style={{ padding: '1.3rem', borderRadius: 16, border: '1px solid rgba(255,255,255,0.07)', background: 'rgba(255,255,255,0.02)' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.9rem' }}>
+                        <Icon size={16} style={{ color: grp.color }} />
+                        <span style={{ fontSize: '0.78rem', fontWeight: 700, color: '#fff' }}>{grp.title}</span>
+                      </div>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
+                        {grp.items.map((it) => (
+                          <span key={it} style={{ padding: '0.28rem 0.7rem', borderRadius: 100, fontSize: '0.72rem', fontWeight: 500, background: `${grp.color}12`, color: grp.color, border: `1px solid ${grp.color}25` }}>{it}</span>
+                        ))}
+                      </div>
+                    </TiltCard>
+                  );
+                })}
+              </div>
+            </Reveal>
           </div>
         </section>
 
-        {/* Footer */}
-        <footer className="py-12 px-6 border-t border-slate-800/50">
-          <div className="max-w-7xl mx-auto text-center">
-            <p className="text-slate-400">© 2025 Eulice Mage. Crafted with <span className="text-red-500">❤</span> and lots of coffee.</p>
+        {/* ── PROJECTS ── */}
+        <section id="projects" style={{ padding: isMobile ? '4rem 1.5rem' : '5rem 3rem' }}>
+          <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+            <Reveal>
+              <p style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#34d399', marginBottom: '0.75rem' }}>Projects</p>
+              <h2 style={{ fontFamily: "'Syne',sans-serif", fontSize: 'clamp(1.8rem,3.5vw,2.8rem)', fontWeight: 800, color: '#fff', lineHeight: 1.15, letterSpacing: '-0.02em', maxWidth: 700, marginBottom: '0.75rem' }}>
+                Selected work — EBPLS as the centerpiece.
+              </h2>
+              <p style={{ fontSize: '0.97rem', lineHeight: 1.8, color: '#64748b', maxWidth: 560, marginBottom: '2.5rem' }}>
+                EBPLS leads because it best represents modern full-stack experience in a real-world LGU context.
+              </p>
+
+              {/* Featured */}
+              <TiltCard
+                as="article"
+                style={{ position: 'relative', overflow: 'hidden', borderRadius: 28, border: '1px solid rgba(99,102,241,0.25)', padding: isMobile ? '2rem' : '2.5rem 3rem', background: 'rgba(15,23,42,0.8)', marginBottom: '1.5rem' }}
+              >
+                <div style={{ position: 'absolute', inset: '0 0 auto', height: 1, background: 'linear-gradient(90deg,transparent,#6366f1 40%,#6ee7f7 60%,transparent)' }} />
+                <div style={{ position: 'absolute', right: -80, top: -80, width: 240, height: 240, borderRadius: '50%', background: 'radial-gradient(circle,rgba(99,102,241,0.12),transparent 70%)', pointerEvents: 'none' }} />
+                <div style={{ position: 'relative', zIndex: 1 }}>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-start', justifyContent: 'space-between', gap: '1rem', marginBottom: '1.2rem' }}>
+                    <div>
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', padding: '0.3rem 0.9rem', borderRadius: 100, fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', background: 'rgba(99,102,241,0.12)', color: '#a5b4fc', border: '1px solid rgba(99,102,241,0.25)', marginBottom: '0.8rem' }}>
+                        <Sparkles size={11} /> Featured Project
+                      </span>
+                      <h3 style={{ fontFamily: "'Syne',sans-serif", fontSize: isMobile ? '2.2rem' : '3rem', fontWeight: 800, color: '#fff', letterSpacing: '-0.02em' }}>EBPLS</h3>
+                    </div>
+                    <span style={{ padding: '0.4rem 1rem', borderRadius: 100, border: '1px solid rgba(56,189,248,0.3)', background: 'rgba(56,189,248,0.06)', fontSize: '0.75rem', fontWeight: 600, color: '#38bdf8' }}>LGU Workflow Platform</span>
+                  </div>
+                  <p style={{ fontSize: '0.97rem', lineHeight: 1.8, color: '#94a3b8', maxWidth: 700, marginBottom: '2rem' }}>{projects[0].description}</p>
+                  <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '1.5rem' }}>
+                    <div style={{ padding: '1.5rem', borderRadius: 18, border: '1px solid rgba(255,255,255,0.07)', background: 'rgba(255,255,255,0.02)' }}>
+                      <p style={{ fontSize: '0.68rem', fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#a78bfa', marginBottom: '1rem' }}>What it demonstrates</p>
+                      {projects[0].details.map((d) => (
+                        <div key={d} style={{ display: 'flex', gap: '0.6rem', marginBottom: '0.6rem' }}>
+                          <CheckCircle2 size={16} style={{ color: '#a78bfa', marginTop: 3, flexShrink: 0 }} />
+                          <span style={{ fontSize: '0.83rem', lineHeight: 1.7, color: '#94a3b8' }}>{d}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <div style={{ padding: '1.5rem', borderRadius: 18, border: '1px solid rgba(255,255,255,0.07)', background: 'rgba(255,255,255,0.02)' }}>
+                      <p style={{ fontSize: '0.68rem', fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#38bdf8', marginBottom: '1rem' }}>Core stack</p>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                        {projects[0].tech.map((t) => (
+                          <span key={t} style={{ padding: '0.3rem 0.8rem', borderRadius: 100, fontSize: '0.72rem', fontWeight: 600, background: 'rgba(99,102,241,0.1)', color: '#a5b4fc', border: '1px solid rgba(99,102,241,0.2)' }}>{t}</span>
+                        ))}
+                      </div>
+                      <p style={{ marginTop: '1rem', fontSize: '0.82rem', lineHeight: 1.7, color: '#64748b' }}>Modern web development across UI, API, and managed backend for a public-sector workflow.</p>
+                    </div>
+                  </div>
+                </div>
+              </TiltCard>
+
+              {/* Supporting */}
+              <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3,1fr)', gap: '1.25rem' }}>
+                {projects.slice(1).map((p) => (
+                  <TiltCard key={p.title} as="article"
+                    className="pcard-hover"
+                    style={{ display: 'flex', flexDirection: 'column', padding: '1.8rem', borderRadius: 20, border: '1px solid rgba(255,255,255,0.08)', background: 'rgba(15,23,42,0.5)' }}
+                  >
+                    <span style={{ fontSize: '0.68rem', fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#475569' }}>{p.type}</span>
+                    <h3 style={{ fontFamily: "'Syne',sans-serif", fontSize: '1.4rem', fontWeight: 700, color: '#fff', margin: '0.5rem 0 0.6rem' }}>{p.title}</h3>
+                    <p style={{ fontSize: '0.82rem', lineHeight: 1.7, color: '#64748b', flex: 1, marginBottom: '0.8rem' }}>{p.description}</p>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem', marginBottom: '1rem' }}>
+                      {p.tech.map((t) => (
+                        <span key={t} style={{ padding: '0.22rem 0.6rem', borderRadius: 100, fontSize: '0.68rem', fontWeight: 500, background: 'rgba(255,255,255,0.04)', color: '#64748b', border: '1px solid rgba(255,255,255,0.07)' }}>{t}</span>
+                      ))}
+                    </div>
+                    <div style={{ display: 'flex', gap: '0.6rem' }}>
+                      {p.live && (
+                        <a href={p.live} target="_blank" rel="noopener noreferrer"
+                          className="sup-link-btn"
+                          style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', padding: '0.4rem 1rem', borderRadius: 100, fontSize: '0.72rem', fontWeight: 600, border: '1px solid rgba(255,255,255,0.1)', color: '#94a3b8', textDecoration: 'none', background: 'transparent', cursor: isMobile ? 'pointer' : 'none' }}>
+                          Live <ExternalLink size={11} />
+                        </a>
+                      )}
+                      {p.github && (
+                        <a href={p.github} target="_blank" rel="noopener noreferrer"
+                          className="sup-link-btn"
+                          style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', padding: '0.4rem 1rem', borderRadius: 100, fontSize: '0.72rem', fontWeight: 600, border: '1px solid rgba(255,255,255,0.1)', color: '#94a3b8', textDecoration: 'none', background: 'transparent', cursor: isMobile ? 'pointer' : 'none' }}>
+                          Code <Github size={11} />
+                        </a>
+                      )}
+                    </div>
+                  </TiltCard>
+                ))}
+              </div>
+            </Reveal>
           </div>
+        </section>
+
+        {/* ── CONTACT ── */}
+        <section id="contact" style={{ padding: isMobile ? '4rem 1.5rem' : '5rem 3rem' }}>
+          <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+            <Reveal>
+              <p style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#38bdf8', marginBottom: '0.75rem' }}>Contact</p>
+              <h2 style={{ fontFamily: "'Syne',sans-serif", fontSize: 'clamp(1.8rem,3.5vw,2.8rem)', fontWeight: 800, color: '#fff', lineHeight: 1.15, letterSpacing: '-0.02em', maxWidth: 600, marginBottom: '2.5rem' }}>
+                Open to junior developer roles and meaningful project work.
+              </h2>
+              <div style={{ position: 'relative', overflow: 'hidden', borderRadius: 28, border: '1px solid rgba(56,189,248,0.2)', padding: isMobile ? '2rem' : '3rem 3.5rem', background: 'rgba(15,23,42,0.8)' }}>
+                <div style={{ position: 'absolute', inset: '0 0 auto', height: 1, background: 'linear-gradient(90deg,transparent,#38bdf8 40%,#a78bfa 60%,transparent)' }} />
+                <div style={{ position: 'absolute', left: -80, top: -80, width: 240, height: 240, borderRadius: '50%', background: 'radial-gradient(circle,rgba(56,189,248,0.1),transparent 70%)', pointerEvents: 'none' }} />
+                <div style={{ position: 'relative', zIndex: 1, display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1.2fr 0.8fr', gap: '3rem', alignItems: 'start' }}>
+                  <div>
+                    <p style={{ fontSize: '0.97rem', lineHeight: 1.85, color: '#94a3b8', marginBottom: '2rem' }}>
+                      If you're hiring a developer who is ready to learn quickly, contribute from day one, and build dependable product features — I'd be glad to connect. Let's build something together.
+                    </p>
+                    <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                      <a href="mailto:eulice.mage57@gmail.com"
+                        className="btn-primary-glow"
+                        style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.85rem 2rem', borderRadius: 100, background: 'linear-gradient(135deg,#0ea5e9,#6366f1)', color: '#fff', fontWeight: 600, fontSize: '0.9rem', textDecoration: 'none', cursor: isMobile ? 'pointer' : 'none', boxShadow: '0 0 20px rgba(99,102,241,0.35)' }}>
+                        Start a Conversation <Mail size={15} />
+                      </a>
+                      <a href="https://www.linkedin.com/in/gonzales-eulice-mage-v-gonzales-93248a361/" target="_blank" rel="noopener noreferrer"
+                        className="btn-ghost-hover"
+                        style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.85rem 2rem', borderRadius: 100, border: '1px solid rgba(255,255,255,0.12)', color: '#e2e8f0', fontWeight: 500, fontSize: '0.9rem', textDecoration: 'none', cursor: isMobile ? 'pointer' : 'none', background: 'transparent' }}>
+                        <Linkedin size={15} /> LinkedIn
+                      </a>
+                    </div>
+                  </div>
+                  <div style={{ display: 'grid', gap: '0.75rem' }}>
+                    {[
+                      { href: 'mailto:eulice.mage57@gmail.com', Icon: Mail, label: 'Email', value: 'eulice.mage57@gmail.com' },
+                      { href: 'https://github.com/eulicemage', Icon: Github, label: 'GitHub', value: 'github.com/eulicemage', ext: true },
+                      { href: 'https://www.linkedin.com/in/gonzales-eulice-mage-v-gonzales-93248a361/', Icon: Linkedin, label: 'LinkedIn', value: 'Professional profile & contact', ext: true },
+                      { href: null, Icon: MapPin, label: 'Location', value: 'Cavinti, Laguna, Philippines' },
+                    ].map(({ href, Icon, label, value, ext }) => {
+                      const props = href ? { href, ...(ext ? { target: '_blank', rel: 'noopener noreferrer' } : {}) } : {};
+                      const Tag = href ? 'a' : 'div';
+                      return (
+                        <Tag key={label} {...props}
+                          className="citem-row"
+                          style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem 1.2rem', borderRadius: 16, border: '1px solid rgba(255,255,255,0.07)', background: 'rgba(255,255,255,0.02)', textDecoration: 'none', cursor: href ? (isMobile ? 'pointer' : 'none') : 'default' }}>
+                          <span style={{ width: 40, height: 40, borderRadius: 12, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(56,189,248,0.1)', border: '1px solid rgba(56,189,248,0.2)' }}>
+                            <Icon size={17} style={{ color: '#38bdf8' }} />
+                          </span>
+                          <span>
+                            <span style={{ display: 'block', fontSize: '0.68rem', color: '#475569', letterSpacing: '0.1em', textTransform: 'uppercase' }}>{label}</span>
+                            <span style={{ display: 'block', marginTop: '0.1rem', fontSize: '0.88rem', fontWeight: 600, color: '#e2e8f0' }}>{value}</span>
+                          </span>
+                        </Tag>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            </Reveal>
+          </div>
+        </section>
+
+        {/* FOOTER */}
+        <footer style={{ borderTop: '1px solid rgba(255,255,255,0.06)', padding: '2rem', textAlign: 'center', fontSize: '0.75rem', color: '#334155', position: 'relative', zIndex: 10 }}>
+          <p>© 2025 Eulice Mage · Built with React, Next.js & Tailwind CSS</p>
         </footer>
-      </div>
-    </>
+      </main>
+    </div>
   );
 }
