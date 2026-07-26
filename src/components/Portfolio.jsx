@@ -18,7 +18,7 @@ const navigationItems = [
 
 const heroSignals = [
   { label: 'Degree', value: 'BS Information Technology' },
-  { label: 'Focus', value: 'Web Apps & Workflow Systems' },
+  { label: 'Focus', value: 'Software, Hardware & IT Support' },
   { label: 'Status', value: 'Open to Opportunities', highlight: true },
 ];
 
@@ -108,15 +108,6 @@ const projects = [
     tech: ['Laravel', 'MySQL', 'Android Studio', 'Java', 'Firebase', 'RFID'],
     live: 'https://www.rockiesfitnessph.com/landing',
     github: 'https://github.com/jimdmnc/FitTrack',
-  },
-  {
-    title: 'Floral Haven',
-    type: 'Supporting',
-    description: 'Responsive storefront built with core frontend technologies and emphasis on clean browsing experience.',
-    details: ['Pure HTML, CSS, and JavaScript implementation.', 'Responsive layout, client-side interactivity, and visual polish.'],
-    tech: ['HTML', 'CSS', 'JavaScript'],
-    live: 'https://flowers-shop-project.netlify.app/',
-    github: 'https://github.com/eulicemage/floral-haven',
   },
 ];
 
@@ -377,7 +368,7 @@ export default function Portfolio() {
   /* Reduced motion + mobile detection */
   useEffect(() => {
     const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const mob = window.matchMedia('(max-width: 767px)');
+    const mob = window.matchMedia('(max-width: 900px)');
     const update = () => { setReduceMotion(mq.matches); setIsMobile(mob.matches); };
     update();
     mq.addEventListener('change', update);
@@ -408,7 +399,7 @@ export default function Portfolio() {
     nav: {
       position: 'sticky', top: 0, zIndex: 100,
       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-      padding: '0.9rem 2.5rem',
+      padding: isMobile ? '0.75rem 1rem' : '0.9rem 2.5rem',
       background: 'rgba(3,7,18,0.65)', backdropFilter: 'blur(24px)',
       borderBottom: '1px solid rgba(255,255,255,0.07)',
     },
@@ -465,7 +456,7 @@ export default function Portfolio() {
       <nav style={S.nav}>
         <button onClick={() => scrollTo('home')} style={S.logo} aria-label="Home">EM</button>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1.75rem' }} className="hidden lg:flex">
+        <div style={{ display: isMobile ? 'none' : 'flex', alignItems: 'center', gap: '1.75rem' }}>
           {navigationItems.map((item) => (
             <button
               key={item.id}
@@ -493,13 +484,14 @@ export default function Portfolio() {
           </button>
         </div>
 
-        <button
-          className="lg:hidden"
+        {isMobile && <button
           onClick={() => setIsMenuOpen(v => !v)}
-          style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, padding: '0.4rem', color: '#cbd5e1', cursor: 'pointer' }}
+          aria-label={isMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+          aria-expanded={isMenuOpen}
+          style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, padding: '0.45rem', color: '#cbd5e1', cursor: 'pointer', lineHeight: 0 }}
         >
           {isMenuOpen ? <X size={20} /> : <Menu size={20} />}
-        </button>
+        </button>}
       </nav>
 
       {isMenuOpen && (
@@ -516,8 +508,8 @@ export default function Portfolio() {
       <main style={{ position: 'relative', zIndex: 10 }}>
 
         {/* ── HERO ── */}
-        <section id="home" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', padding: isMobile ? '5rem 1.5rem 3rem' : '6rem 3rem 4rem', position: 'relative', overflow: 'hidden' }}>
-          <div style={{ maxWidth: 900, position: 'relative', zIndex: 2, width: '100%' }}>
+        <section id="home" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', padding: isMobile ? '4.5rem 1.25rem 3rem' : '6rem 3rem 4rem', position: 'relative', overflow: 'hidden' }}>
+          <div style={{ maxWidth: 900, margin: '0 auto', position: 'relative', zIndex: 2, width: '100%', minWidth: 0 }}>
 
             {/* Badge */}
             <div
@@ -535,12 +527,12 @@ export default function Portfolio() {
             />
             <div style={{ ...layer(8), display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.35rem 1rem', borderRadius: 100, border: '1px solid rgba(110,231,247,0.25)', background: 'rgba(110,231,247,0.06)', marginBottom: '1.75rem', animation: 'fadeUp 0.8s ease both' }}>
               <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#6ee7f7', animation: 'pulse 2s infinite', display: 'inline-block' }} />
-              <span style={{ fontSize: '0.72rem', fontWeight: 600, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#6ee7f7' }}>Software Developer Portfolio</span>
+              <span style={{ fontSize: '0.72rem', fontWeight: 600, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#6ee7f7' }}>IT Professional Portfolio</span>
             </div>
 
             {/* Headline */}
             <div style={layer(10)}>
-              <h1 style={{ fontFamily: "'Syne', sans-serif", fontSize: isMobile ? '3rem' : 'clamp(3.5rem,8vw,7rem)', fontWeight: 800, lineHeight: 0.95, letterSpacing: '-0.03em', color: '#fff', animation: 'fadeUp 0.8s 0.1s ease both', marginBottom: '1.4rem' }}>
+              <h1 style={{ fontFamily: "'Syne', sans-serif", fontSize: isMobile ? '2.6rem' : 'clamp(3.5rem,8vw,7rem)', fontWeight: 800, lineHeight: 1, letterSpacing: 0, color: '#fff', animation: 'fadeUp 0.8s 0.1s ease both', marginBottom: '1.4rem', overflowWrap: 'anywhere' }}>
                 Hi, I'm{' '}
                 <span style={{ background: 'linear-gradient(135deg,#6ee7f7 0%,#a78bfa 50%,#f472b6 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
                   Eulice Mage
@@ -551,7 +543,7 @@ export default function Portfolio() {
 
             <div style={layer(6)}>
               <p style={{ maxWidth: 560, fontSize: '1.05rem', lineHeight: 1.8, color: '#94a3b8', animation: 'fadeUp 0.8s 0.2s ease both', marginBottom: '2.2rem' }}>
-                An IT graduate focused on building practical, modern software across frontend and backend systems. I translate requirements into clean interfaces and dependable workflows.
+                An IT professional with hands-on experience in software development, hardware support, and on-call technical troubleshooting. I help customers resolve practical software and device issues while building dependable digital solutions.
               </p>
             </div>
 
@@ -591,28 +583,29 @@ export default function Portfolio() {
 
         {/* ── ABOUT ── */}
         <section id="about" style={{ padding: isMobile ? '4rem 1.5rem' : '5rem 3rem' }}>
-          <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+          <div style={{ maxWidth: 1100, margin: '0 auto', minWidth: 0 }}>
             <Reveal>
-              <div style={{ position: 'relative', overflow: 'hidden', borderRadius: 28, border: '1px solid rgba(255,255,255,0.08)', padding: isMobile ? '2rem' : '2.5rem 3rem', background: 'rgba(15,23,42,0.65)', backdropFilter: 'blur(12px)' }}>
+              <div style={{ position: 'relative', overflow: 'hidden', borderRadius: isMobile ? 8 : 28, border: '1px solid rgba(255,255,255,0.08)', padding: isMobile ? '1.5rem' : '2.5rem 3rem', background: 'rgba(15,23,42,0.65)', backdropFilter: 'blur(12px)' }}>
                 <div style={{ position: 'absolute', inset: '0 0 auto', height: 1, background: 'linear-gradient(90deg,transparent,#a78bfa 40%,#6ee7f7 60%,transparent)' }} />
                 <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1.3fr 0.7fr', gap: '2.5rem' }}>
                   <div>
                     <p style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#38bdf8', marginBottom: '1rem' }}>About Me</p>
                     <h2 style={{ fontFamily: "'Syne',sans-serif", fontSize: 'clamp(1.8rem,3.5vw,2.8rem)', fontWeight: 800, color: '#fff', lineHeight: 1.15, letterSpacing: '-0.02em', marginBottom: '1.2rem' }}>
-                      Building real software with a clear technical foundation.
+                      Building practical IT solutions with a clear technical foundation.
                     </h2>
                     <p style={{ fontSize: '0.97rem', lineHeight: 1.85, color: '#94a3b8', marginBottom: '1rem' }}>
-                      My portfolio is built around proof: the software systems I've built, the stack I used, and the kind of team contribution I'm ready to grow into. I'm a fresh graduate with a solid foundation in web and mobile development.
+                      My portfolio reflects hands-on IT experience across software development, hardware support, and customer troubleshooting. Alongside building web and mobile systems, I work as a freelance IT Technician providing on-call help with software issues, hardware concerns, device setup, maintenance, and practical technical support.
                     </p>
                     <p style={{ fontSize: '0.97rem', lineHeight: 1.85, color: '#94a3b8' }}>
-                      I'm eager to join a team where I can contribute from day one, keep learning quickly, and eventually help drive meaningful product decisions.
+                      I am ready to contribute in IT Associate, Junior System Administrator, technical support, and other IT-related roles where I can solve problems, keep learning, and help people use technology with confidence.
                     </p>
                   </div>
                   <div style={{ display: 'grid', gap: '0.75rem', alignSelf: 'center' }}>
                     {[
                       { label: 'Degree', val: 'BS Information Technology', sub: 'System Development track' },
+                      { label: 'Freelance IT Technician', val: 'On-call customer support', sub: 'Software, hardware, setup & maintenance' },
                       { label: 'Work Style', val: 'Calm & coachable', sub: 'Ready for structured feedback' },
-                      { label: 'Interests', val: 'LGU & service portals', sub: 'Data-backed internal tools' },
+                      { label: 'Interests', val: 'Software & hardware support', sub: 'Data-backed internal tools' },
                     ].map((item) => (
                       <TiltCard key={item.label} style={{ padding: '1rem 1.2rem', borderRadius: 14, border: '1px solid rgba(255,255,255,0.07)', background: 'rgba(255,255,255,0.02)' }}>
                         <p style={{ fontSize: '0.68rem', color: '#475569', letterSpacing: '0.1em', textTransform: 'uppercase' }}>{item.label}</p>
@@ -629,7 +622,7 @@ export default function Portfolio() {
 
         {/* ── STACK ── */}
         <section id="stack" style={{ padding: isMobile ? '4rem 1.5rem' : '5rem 3rem' }}>
-          <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+          <div style={{ maxWidth: 1100, margin: '0 auto', minWidth: 0 }}>
             <Reveal>
               <p style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#a78bfa', marginBottom: '0.75rem' }}>Technical Focus</p>
               <h2 style={{ fontFamily: "'Syne',sans-serif", fontSize: 'clamp(1.8rem,3.5vw,2.8rem)', fontWeight: 800, color: '#fff', lineHeight: 1.15, letterSpacing: '-0.02em', maxWidth: 600, marginBottom: '0.75rem' }}>
@@ -662,7 +655,7 @@ export default function Portfolio() {
               </div>
 
               {/* Tech chips */}
-              <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2,1fr)' : 'repeat(4,1fr)', gap: '1rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2,minmax(0,1fr))' : 'repeat(4,minmax(0,1fr))', gap: isMobile ? '0.75rem' : '1rem' }}>
                 {technicalGroups.map((grp) => {
                   const Icon = grp.icon;
                   return (
@@ -686,7 +679,7 @@ export default function Portfolio() {
 
         {/* ── PROJECTS ── */}
         <section id="projects" style={{ padding: isMobile ? '4rem 1.5rem' : '5rem 3rem' }}>
-          <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+          <div style={{ maxWidth: 1100, margin: '0 auto', minWidth: 0 }}>
             <Reveal>
               <p style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#34d399', marginBottom: '0.75rem' }}>Projects</p>
               <h2 style={{ fontFamily: "'Syne',sans-serif", fontSize: 'clamp(1.8rem,3.5vw,2.8rem)', fontWeight: 800, color: '#fff', lineHeight: 1.15, letterSpacing: '-0.02em', maxWidth: 700, marginBottom: '0.75rem' }}>
@@ -699,7 +692,7 @@ export default function Portfolio() {
               {/* Featured */}
               <TiltCard
                 as="article"
-                style={{ position: 'relative', overflow: 'hidden', borderRadius: 28, border: '1px solid rgba(99,102,241,0.25)', padding: isMobile ? '2rem' : '2.5rem 3rem', background: 'rgba(15,23,42,0.8)', marginBottom: '1.5rem' }}
+                style={{ position: 'relative', overflow: 'hidden', borderRadius: isMobile ? 8 : 28, border: '1px solid rgba(99,102,241,0.25)', padding: isMobile ? '1.5rem' : '2.5rem 3rem', background: 'rgba(15,23,42,0.8)', marginBottom: '1.5rem' }}
               >
                 <div style={{ position: 'absolute', inset: '0 0 auto', height: 1, background: 'linear-gradient(90deg,transparent,#6366f1 40%,#6ee7f7 60%,transparent)' }} />
                 <div style={{ position: 'absolute', right: -80, top: -80, width: 240, height: 240, borderRadius: '50%', background: 'radial-gradient(circle,rgba(99,102,241,0.12),transparent 70%)', pointerEvents: 'none' }} />
@@ -777,19 +770,19 @@ export default function Portfolio() {
 
         {/* ── CONTACT ── */}
         <section id="contact" style={{ padding: isMobile ? '4rem 1.5rem' : '5rem 3rem' }}>
-          <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+          <div style={{ maxWidth: 1100, margin: '0 auto', minWidth: 0 }}>
             <Reveal>
               <p style={{ fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#38bdf8', marginBottom: '0.75rem' }}>Contact</p>
               <h2 style={{ fontFamily: "'Syne',sans-serif", fontSize: 'clamp(1.8rem,3.5vw,2.8rem)', fontWeight: 800, color: '#fff', lineHeight: 1.15, letterSpacing: '-0.02em', maxWidth: 600, marginBottom: '2.5rem' }}>
-                Open to junior developer roles and meaningful project work.
+                Open to IT Associate, Junior System Administrator, technical support, and other IT-related roles.
               </h2>
-              <div style={{ position: 'relative', overflow: 'hidden', borderRadius: 28, border: '1px solid rgba(56,189,248,0.2)', padding: isMobile ? '2rem' : '3rem 3.5rem', background: 'rgba(15,23,42,0.8)' }}>
+              <div style={{ position: 'relative', overflow: 'hidden', borderRadius: isMobile ? 8 : 28, border: '1px solid rgba(56,189,248,0.2)', padding: isMobile ? '1.5rem' : '3rem 3.5rem', background: 'rgba(15,23,42,0.8)' }}>
                 <div style={{ position: 'absolute', inset: '0 0 auto', height: 1, background: 'linear-gradient(90deg,transparent,#38bdf8 40%,#a78bfa 60%,transparent)' }} />
                 <div style={{ position: 'absolute', left: -80, top: -80, width: 240, height: 240, borderRadius: '50%', background: 'radial-gradient(circle,rgba(56,189,248,0.1),transparent 70%)', pointerEvents: 'none' }} />
                 <div style={{ position: 'relative', zIndex: 1, display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1.2fr 0.8fr', gap: '3rem', alignItems: 'start' }}>
                   <div>
                     <p style={{ fontSize: '0.97rem', lineHeight: 1.85, color: '#94a3b8', marginBottom: '2rem' }}>
-                      If you're hiring a developer who is ready to learn quickly, contribute from day one, and build dependable product features — I'd be glad to connect. Let's build something together.
+                      If you need an IT professional who can support users, troubleshoot software and hardware issues, and contribute to dependable digital systems, I'd be glad to connect. Let's solve practical problems together.
                     </p>
                     <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
                       <a href="mailto:eulice.mage57@gmail.com"
@@ -797,7 +790,7 @@ export default function Portfolio() {
                         style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.85rem 2rem', borderRadius: 100, background: 'linear-gradient(135deg,#0ea5e9,#6366f1)', color: '#fff', fontWeight: 600, fontSize: '0.9rem', textDecoration: 'none', cursor: isMobile ? 'pointer' : 'none', boxShadow: '0 0 20px rgba(99,102,241,0.35)' }}>
                         Start a Conversation <Mail size={15} />
                       </a>
-                      <a href="https://www.linkedin.com/in/gonzales-eulice-mage-v-gonzales-93248a361/" target="_blank" rel="noopener noreferrer"
+                      <a href="https://www.linkedin.com/in/eulice-mage-gonzales-93248a361/" target="_blank" rel="noopener noreferrer"
                         className="btn-ghost-hover"
                         style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.85rem 2rem', borderRadius: 100, border: '1px solid rgba(255,255,255,0.12)', color: '#e2e8f0', fontWeight: 500, fontSize: '0.9rem', textDecoration: 'none', cursor: isMobile ? 'pointer' : 'none', background: 'transparent' }}>
                         <Linkedin size={15} /> LinkedIn
@@ -808,7 +801,7 @@ export default function Portfolio() {
                     {[
                       { href: 'mailto:eulice.mage57@gmail.com', Icon: Mail, label: 'Email', value: 'eulice.mage57@gmail.com' },
                       { href: 'https://github.com/eulicemage', Icon: Github, label: 'GitHub', value: 'github.com/eulicemage', ext: true },
-                      { href: 'https://www.linkedin.com/in/gonzales-eulice-mage-v-gonzales-93248a361/', Icon: Linkedin, label: 'LinkedIn', value: 'Professional profile & contact', ext: true },
+                      { href: 'https://www.linkedin.com/in/eulice-mage-gonzales-93248a361/', Icon: Linkedin, label: 'LinkedIn', value: 'Professional profile & contact', ext: true },
                       { href: null, Icon: MapPin, label: 'Location', value: 'Cavinti, Laguna, Philippines' },
                     ].map(({ href, Icon, label, value, ext }) => {
                       const props = href ? { href, ...(ext ? { target: '_blank', rel: 'noopener noreferrer' } : {}) } : {};
@@ -822,7 +815,7 @@ export default function Portfolio() {
                           </span>
                           <span>
                             <span style={{ display: 'block', fontSize: '0.68rem', color: '#475569', letterSpacing: '0.1em', textTransform: 'uppercase' }}>{label}</span>
-                            <span style={{ display: 'block', marginTop: '0.1rem', fontSize: '0.88rem', fontWeight: 600, color: '#e2e8f0' }}>{value}</span>
+                            <span style={{ display: 'block', marginTop: '0.1rem', fontSize: '0.88rem', fontWeight: 600, color: '#e2e8f0', overflowWrap: 'anywhere' }}>{value}</span>
                           </span>
                         </Tag>
                       );
@@ -841,4 +834,4 @@ export default function Portfolio() {
       </main>
     </div>
   );
-} 
+}

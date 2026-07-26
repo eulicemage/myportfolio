@@ -20,6 +20,16 @@ html {
   -moz-osx-font-smoothing: grayscale;
 }
 
+body {
+  min-width: 320px;
+  overflow-x: hidden;
+}
+
+button,
+a {
+  touch-action: manipulation;
+}
+
 /* ── Portfolio Shell ── */
 .portfolio-shell {
   background-color: #020617;
